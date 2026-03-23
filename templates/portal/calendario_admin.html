@@ -1,0 +1,225 @@
+{% extends 'base.html' %}
+{% block title %}Calendário Acadêmico - Administração ({{ ano }}){% endblock %}
+
+{% block content %}
+
+<style>
+/* ====== LAYOUT GERAL ====== */
+.calendar-wrapper {
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+    font-family: "Inter", sans-serif;
+}
+
+.calendar-title {
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: #104370;
+    margin-bottom: 15px;
+}
+
+/* Navegação */
+.year-nav {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+.year-nav a {
+    background: #2c3e50;
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: .85rem;
+    transition: .2s;
+}
+.year-nav a:hover { background: #092d4c; }
+
+/* Container */
+.calendarios-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+/* ====== MÊS ====== */
+.mes-card {
+    background: #fff;
+    width: 180px; /* diminui largura do mês */
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #dfe7f0;
+    transition: .2s;
+}
+.mes-card:hover { 
+    box-shadow: 0px 3px 12px rgba(0,0,0,0.15);  
+    height: auto;
+}
+
+.mes-header {
+    background: #2c3e50;
+    color: #fff;
+    text-align: center;
+    padding: 6px 0;
+    font-size: .82rem;
+    font-weight: 600;
+}
+
+/* Grid dias */
+.dias-semana, .dias {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-size: .72rem; /* menor texto */
+}
+.dias-semana div {
+    
+    font-weight: 600;
+    background: #eaeff4;
+    color: #2c3e50;
+    border-bottom: 1px solid #d3dce6;
+}
+
+/* Dias */
+.dias div {
+    padding: 5px 0;
+    min-height: 28px;
+    border-bottom: 1px solid #edf1f5;
+    border-right: 1px solid #edf1f5;
+    font-size: 0.85rem;
+}
+
+/* Dia */
+.dias {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-auto-rows: 26px; /* altura fixa para cada linha */
+    box-sizing: border-box;
+}
+.dias div:hover {
+    
+    filter: brightness(0.9);
+    transform: scale(.95);
+}
+.dias a {
+    text-decoration: none;
+}
+
+/* Melhor comportamento em telas menores */
+@media(max-width: 900px) {
+    .mes-card {
+        width: 150px;
+    }
+    .dias div {
+        padding: 4px;
+        box-sizing: border-box;
+        min-height: 26px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+/* ====== CORES ====== */
+.dia-normal { background: #fff; }
+.dia-hoje { outline: 2px solid #000; font-weight: bold; }
+
+.dia-green { background: #4caf50; color:#fff; }
+.dia-red { background: #e53935; color:#fff; }
+.dia-yellow { background: #ffeb3b; color:#000; }
+.dia-blue { background: #2196f3; color:#fff; }
+.dia-purple { background: #8e44ad; color:#fff; }
+.dia-orange { background: #ff9800; color:#fff; }
+
+/* ====== LEGENDA ====== */
+.legenda-title { font-weight:700; margin-top:10px;color:#104370; }
+
+.legenda-box {
+    margin-top:20px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    justify-content:center;
+}
+.legenda-item {
+    padding:8px 12px;
+    border-radius:8px;
+    font-size:.8rem;
+    font-weight:600;
+    border:1px solid #cfd8e3;
+    min-width:150px;
+    text-align:center;
+}
+</style>
+
+<div class="calendar-wrapper">
+
+  <h2 class="calendar-title"> Administração do Calendário - {{ ano }}</h2>
+
+  <div class="year-nav">
+    <a href="?ano={{ ano|add:'-1' }}">⬅ Ano anterior</a>
+    <a href="?ano={{ ano|add:'1' }}">Próximo ano ➡</a>
+  </div>
+
+  <h4 class="legenda-title">Legenda:</h4>
+  <div class="legenda-box">
+    {% for key, label in legend.items %}
+        <div class="legenda-item"
+          style="{% if key == 'green' %}background:#4caf50;color:white;
+                 {% elif key == 'red' %}background:#e53935;color:white;
+                 {% elif key == 'yellow' %}background:#ffeb3b;color:black;
+                 {% elif key == 'blue' %}background:#2196f3;color:white;
+                 {% elif key == 'purple' %}background:#8e44ad;color:white;
+                 {% elif key == 'orange' %}background:#ff9800;color:white;
+                 {% else %}background:white;color:black;{% endif %}">
+          {{ label }}
+        </div>
+    {% endfor %}
+  </div>
+
+  <div class="calendarios-container">
+    {% for mes in meses %}
+      <div class="mes-card">
+        <div class="mes-header">{{ mes.nome }}</div>
+
+        <div class="dias-semana">
+          {% for dia_semana in dias_semana %} <div>{{ dia_semana|slice:":3" }}</div> {% endfor %}
+        </div>
+
+        <div class="dias">
+          {% for dia in mes.dias %}
+            {% if dia %}
+            {% if dia.id %}
+                <a href="{% url 'escolas:editar_dia' dia.id %}" style="text-decoration:none;">
+            {% else %}
+                <a href="#" style="pointer-events:none;">
+            {% endif %}
+                <div class="
+                {% if dia.cor == None %}dia-normal{% endif %}
+                {% if dia.hoje %} dia-hoje{% endif %}
+                {% if dia.cor == 'green' %} dia-green{% endif %}
+                {% if dia.cor == 'red' %} dia-red{% endif %}
+                {% if dia.cor == 'yellow' %} dia-yellow{% endif %}
+                {% if dia.cor == 'blue' %} dia-blue{% endif %}
+                {% if dia.cor == 'purple' %} dia-purple{% endif %}
+                {% if dia.cor == 'orange' %} dia-orange{% endif %}
+              ">
+                {{ dia.data.day }}
+              </div>
+              </a>
+            {% else %}
+              <div></div>
+            {% endif %}
+          {% endfor %}
+        </div>
+
+      </div>
+    {% endfor %}
+  </div>
+
+</div>
+
+{% endblock %}

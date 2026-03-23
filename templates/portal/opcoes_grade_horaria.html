@@ -1,0 +1,50 @@
+{% extends "base_polo.html" %}
+
+{% block title %}Prioridades da Grade - {{ turma.nome }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h2 class="mb-3 text-center">Selecionar Disciplinas Prioritárias</h2>
+    <p class="text-center text-muted">
+        Escolha as disciplinas que devem ter mais aulas na semana (até 4 aulas).
+    </p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="card shadow p-4">
+            <h5 class="mb-3">Disciplinas disponíveis:</h5>
+
+            {% if disciplinas %}
+                <div class="row">
+                    {% for disc in disciplinas %}
+                        <div class="col-md-4 mb-2">
+                            <label class="form-check-label">
+                                <input type="checkbox" 
+                                       name="prioridade" 
+                                       value="{{ disc.id }}" 
+                                       class="form-check-input">
+                                {{ disc.nome }}
+                            </label>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-danger"> <i class="bi bi-exclamation-circle"></i> Nenhuma disciplina encontrada para esta turma.</p>
+            {% endif %}
+        </div>
+
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-primary btn-lg">
+                Gerar Grade Horária
+            </button>
+        </div>
+    </form>
+
+    <div class="text-center mt-3">
+        <a href="{% url 'escolas:visualizar_grade_horaria' polo_id turma.id %}" class="btn btn-secondary">Voltar</a>
+    </div>
+
+</div>
+{% endblock %}

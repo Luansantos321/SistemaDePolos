@@ -1,0 +1,120 @@
+{% extends 'base_polo.html' %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<style>
+  .dashboard-container {
+    padding: 20px;
+  }
+  .dashboard-title {
+    color: #2c3e50;
+    font-weight: 700;
+    font-size: 28px;
+    margin-bottom: 10px;
+  }
+  .dashboard-section-title {
+    color: #2c3e50;
+    font-size: 20px;
+    margin-top: 30px;
+    font-weight: 600;
+  }
+  .card-box {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .info-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    min-width: 200px;
+    flex: 1;
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  .info-card i {
+    font-size: 30px;
+    color: #2c3e50;
+  }
+  .info-card span {
+    font-size: 18px;
+    font-weight: 600;
+    color: #2c3e50;
+  }
+  .info-card small {
+    display: block;
+    font-size: 14px;
+    color: gray;
+  }
+  ul.custom-list {
+    list-style: none;
+    padding: 0;
+  }
+  ul.custom-list li {
+    background: #fff;
+    padding: 10px 15px;
+    margin-top: 6px;
+    border-radius: 8px;
+    box-shadow: 0px 1px 5px rgba(0,0,0,0.08);
+  }
+</style>
+
+<div class="dashboard-container">
+  <h1 class="dashboard-title">Painel do Polo - {{ polo.nome }}</h1>
+
+  <h2 class="dashboard-section-title">Resumo</h2>
+  <div class="card-box">
+    <div class="info-card">
+      <i class="bi bi-people-fill"></i>
+      <div>
+        <span>{{ alunos.count }}</span>
+        <small>Alunos cadastrados</small>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <i class="bi bi-person-badge-fill"></i>
+      <div>
+        <span>{{ professores.count }}</span>
+        <small>Professores cadastrados</small>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <i class="bi bi-building"></i>
+      <div>
+        <span>{{ turmas.count }}</span>
+        <small>Turmas ativas</small>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="dashboard-section-title"><i class="bi bi-list-task"></i> Turmas</h2>
+  <ul class="custom-list">
+    {% for turma in turmas %}
+      <li><strong>{{ turma.nome }}</strong> — {{ turma.ano }}</li>
+    {% empty %}
+      <li>Nenhuma turma cadastrada.</li>
+    {% endfor %}
+  </ul>
+
+  <h2 class="dashboard-section-title"><i class="bi bi-person-lines-fill"></i> Professores</h2>
+  <ul class="custom-list">
+    {% for prof in professores %}
+      <li><strong>{{ prof.nome }}</strong> — {{ prof.email|default:"Sem email" }}</li>
+    {% empty %}
+      <li>Nenhum professor cadastrado.</li>
+    {% endfor %}
+  </ul>
+
+  <h2 class="dashboard-section-title"><i class="bi bi-person-fill"></i> Alunos</h2>
+  <ul class="custom-list">
+    {% for aluno in alunos %}
+      <li><strong>{{ aluno.nome }}</strong> — Matrícula: {{ aluno.matricula }}</li>
+    {% empty %}
+      <li>Nenhum aluno cadastrado.</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

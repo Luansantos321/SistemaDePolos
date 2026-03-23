@@ -1,0 +1,154 @@
+{% extends 'base_polo.html' %}
+{% load static %}
+{% block title %}Listar Turmas{% endblock %}
+{% block content %}
+<style>
+/* ====== ESTILIZAÇÃO BASE ====== */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #2c3e50;
+}
+
+h2 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+}
+
+/* ====== TABELA ====== */
+.table-turmas {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.table-turmas th, .table-turmas td {
+    padding: 15px;
+    text-align: left;
+}
+
+.table-turmas thead {
+    background-color: #2c3e50;
+    color: #fff;
+}
+
+.table-turmas tbody tr:nth-child(even) {
+    background-color: #f5f5f5;
+}
+
+.table-turmas tbody tr:hover {
+    background-color: #e0e0e0;
+    transition: background 0.3s;
+}
+
+/* ====== BOTÕES ====== */
+.btn-action {
+    background-color: #2c3e50;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+    transition: background 0.3s, transform 0.2s;
+}
+
+.btn-action:hover {
+    background-color: #1f2a38;
+    transform: translateY(-2px);
+}
+
+/* ====== FORM INLINE ====== */
+.form-inline {
+    display: inline-block;
+    margin: 0;
+}
+
+/* ====== ÍCONES ====== */
+.bi {
+    font-size: 16px;
+}
+.bt-notas {
+    background: linear-gradient(135deg, #2c3e50, #1f2a38);
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-weight: 500;
+    border: none;
+}
+.bt-notas:hover{
+    background-color: #1f2a38;
+    transform: translateY(-2px);
+}
+</style>
+
+<h2>Turmas do Polo {{ polo.nome }}</h2>
+<form method="get">
+  <label for="ano_letivo">Filtrar por Ano Letivo:</label>
+  <input type="number" name="ano_letivo" id="ano_letivo" value="{{ ano_letivo }}" min="2000" max="2100" >
+  <button type="submit" class="bt-notas"><i class="bi bi-search"></i></button>
+  <a href="{% url 'escolas:listar_turmas' polo.id%}">
+    <button class="bt-notas" type="button"><i class="bi bi-x"></i> </button>
+  </a>
+</form>
+<hr>
+
+<p style="margin-top: 10px; font-weight: 600;">
+    Total: {{ turmas.count }} turma(s) encontrada(s)
+</p>
+
+<hr>
+
+<table class="table-turmas">
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Ano</th>
+            <th>Turno</th>
+            <th>Ano Letivo</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for turma in turmas %}
+        <tr>
+            <td>{{ turma.nome }}</td>
+            <td>{{ turma.ano }}</td>
+            <td>{{ turma.turno }}</td>
+            <td>{{ turma.ano_letivo }}</td>
+            <td>
+                <!-- Detalhes -->
+                <form class="form-inline" action="{% url 'escolas:detalhes_da_turma' polo.id turma.id %}" method="get">
+                    <button type="submit" class="btn-action">
+                        <i class="bi bi-eye"></i> Detalhes
+                    </button>
+                </form>
+
+                <form class="form-inline" action="{% url 'escolas:visualizar_grade_horaria' polo.id turma.id %}">
+                    <button type="submit" class="btn-action" >
+                        <i class="bi bi-calendar2-check"></i> Visualizar Grade
+                    </button>
+                </form>
+                                                    
+                <!-- Excluir -->
+                <form class="form-inline" action="{% url 'escolas:excluir_turma' turma.id %}" method="post" style="margin-left: 5px;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-action" onclick="return confirm('Tem certeza que deseja excluir a turma?');">
+                        <i class="bi bi-trash"></i> Excluir
+                    </button>
+                </form>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" style="text-align: center; color: #888;"><i class="bi bi-exclamation-circle"></i> Nenhuma turma cadastrada.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

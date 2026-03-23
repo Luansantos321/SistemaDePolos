@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% block title %}Home{% endblock %}
+{% block content %}
+
+<style>
+    /* ======= PAINEL GERAL ======= */
+
+    .dashboard-container {
+        padding: 10px 5px;
+    }
+
+    .titulo-pagina {
+        font-size: 26px;
+        font-weight: bold;
+        margin-bottom: 25px;
+        color: #263238;
+    }
+
+    .btn-criar {
+        display: inline-block;
+        padding: 10px 20px;
+        background: #2c3e50;
+        color: #fff;
+        font-weight: bold;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: 0.2s;
+    }
+
+    .btn-criar:hover {
+        background: #263238;
+    }
+
+    /* ======= GRID DE POLOS ======= */
+
+    .polos-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 25px;
+        margin-top: 20px;
+    }
+
+    .card-polo {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 18px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        border: 1px solid #e3e3e3;
+        transition: 0.3s;
+    }
+
+    .card-polo:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    }
+
+    /* ======= LOGO + NOME ======= */
+
+    .logo-area {
+        text-align: center;
+        margin-bottom: 12px;
+    }
+
+    .logo-area img {
+        max-width: 100px;
+        max-height: 100px;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        object-fit: cover;
+    }
+
+    .polo-nome {
+        font-size: 18px;
+        font-weight: bold;
+        color: #1a1a1a;
+        margin-top: 10px;
+        text-transform: uppercase;
+    }
+
+    /* ======= INFORMAÇÕES ======= */
+
+    .info-item {
+        font-size: 13px;
+        margin: 6px 0;
+    }
+
+    .info-item strong {
+        color: #37474f;
+    }
+
+    /* ======= BOTÕES ======= */
+
+    .card-botoes {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 15px;
+    }
+
+    .btn-acoes {
+        padding: 7px 12px;
+        border-radius: 6px;
+        text-decoration: none;
+        color: #fff;
+        font-size: 13px;
+        font-weight: bold;
+        transition: 0.2s;
+    }
+
+    .btn-editar {
+        background-color: #fb8c00;
+    }
+
+    .btn-editar:hover {
+        background-color: #e67e00;
+    }
+
+    .btn-acessar {
+        background-color: #2e7d32;
+    }
+
+    .btn-acessar:hover {
+        background-color: #1b5e20;
+    }
+
+</style>
+
+<div class="dashboard-container">
+
+    <h1 class="titulo-pagina">Dashboard Global</h1>
+
+    <!-- Botão criar polo -->
+    <a href="{% url 'portal:criar_polo' %}" class="btn-criar">
+        Criar Novo Polo
+    </a>
+
+    <!-- Grid com cartões -->
+    <div class="polos-grid">
+        {% for polo in polos %}
+        <div class="card-polo">
+
+            <div class="logo-area">
+                {% if polo.logo %}
+                    <img src="{{ polo.logo.url }}" alt="Logo do Polo">
+                {% endif %}
+                <div class="polo-nome">{{ polo.nome }}</div>
+            </div>
+
+            <p class="info-item"><strong>Endereço:</strong> {{ polo.endereco|default:"Não informado" }}</p>
+            <p class="info-item"><strong>Telefone:</strong> {{ polo.telefone|default:"Não informado" }}</p>
+            <p class="info-item"><strong>Alunos:</strong> {{ polo.alunos.count }}</p>
+            <p class="info-item"><strong>Professores:</strong> {{ polo.professores.count }}</p>
+            <p class="info-item"><strong>Turmas:</strong> {{ polo.turmas.count }}</p>
+
+            <div class="card-botoes">
+                <a href="{% url 'portal:editar_polo' polo.id %}" class="btn-acoes btn-editar">Editar</a>
+                <a href="{% url 'portal:acessar_polo' polo.id %}" class="btn-acoes btn-acessar">Acessar</a>
+            </div>
+
+        </div>
+        {% empty %}
+            <p>Nenhum polo cadastrado.</p>
+        {% endfor %}
+    </div>
+
+</div>
+
+{% endblock %}

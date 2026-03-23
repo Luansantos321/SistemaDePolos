@@ -1,0 +1,327 @@
+{% extends 'base.html' %}
+{% block title %} Gerenciar Usuarios {% endblock %}
+{% block content %}
+
+<style>
+:root {
+    --primaria: #2c3e50;
+    --primaria-hover: #1f2e3a;
+    --cinza-claro: #f5f7fa;
+    --cinza-medio: #d0d7de;
+    --cinza-escuro: #6b777f;
+    --borda-suave: #e2e6ea;
+    --verde-acoes: #198754;
+    --vermelho: #d9534f;
+    --azul: #0d6efd;
+}
+
+/* Container do formulário */
+.form-card {
+    background: white;
+    padding: 28px;
+    border-radius: 14px;
+    border: 1px solid var(--borda-suave);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    max-width: 520px;
+    margin-bottom: 45px;
+    transition: .3s;
+}
+
+.form-card:hover {
+    box-shadow: 0 5px 18px rgba(0,0,0,0.09);
+}
+
+.form-card h2 {
+    font-size: 23px;
+    margin-bottom: 18px;
+    color: var(--primaria);
+    font-weight: 700;
+}
+
+/* Inputs */
+.form-card label {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 10px 0 5px;
+    color: var(--primaria);
+    display: block;
+}
+
+.form-card input,
+.form-card select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--cinza-medio);
+    border-radius: 8px;
+    background: var(--cinza-claro);
+    font-size: 14px;
+    transition: .25s;
+}
+
+.form-card input:focus,
+.form-card select:focus {
+    outline: none;
+    border-color: var(--primaria);
+    background: #fff;
+    box-shadow: 0 0 0 2px rgba(44,62,80,0.15);
+}
+
+/* Botão */
+.form-card button {
+    width: 100%;
+    margin-top: 18px;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    background: var(--primaria);
+    color: white;
+    cursor: pointer;
+    transition: .25s;
+}
+
+.form-card button:hover {
+    background: var(--primaria-hover);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+}
+
+/* Tabela */
+.table-card {
+    background: white;
+    padding: 28px;
+    border-radius: 14px;
+    border: 1px solid var(--borda-suave);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    transition: .3s;
+}
+
+.table-card:hover {
+    box-shadow: 0 5px 18px rgba(0,0,0,0.09);
+}
+
+.table-card h2 {
+    font-size: 23px;
+    margin-bottom: 18px;
+    color: var(--primaria);
+    font-weight: 700;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+    border-radius: 10px;
+}
+
+/* Tabela */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+table th {
+    text-align: left;
+    padding: 12px;
+    background: #e9ecef;
+    color: var(--primaria);
+    font-size: 14px;
+    font-weight: 700;
+    border-bottom: 2px solid var(--cinza-medio);
+}
+
+table td {
+    padding: 12px;
+    border-bottom: 1px solid #e6e6e6;
+    font-size: 14px;
+    color: var(--primaria);
+}
+
+table tr:hover td {
+    background: #f8f9fc;
+}
+
+/* Botões de ação */
+.action-btn {
+    padding: 6px 14px;
+    font-size: 13px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    color: white;
+    font-weight: 600;
+    transition: .2s;
+    display: inline-block;
+}
+
+.btn-edit {
+    background: var(--azul);
+}
+.btn-edit:hover {
+    background: #0b5ed7;
+}
+
+.btn-delete {
+    background: var(--vermelho);
+}
+.btn-delete:hover {
+    background: #b93732;
+}
+
+.btn-remove {
+    background: green;
+}
+.btn-remove:hover {
+    background: #198754;
+}
+.btn-reactivate{
+    background: var(--cinza-escuro);
+}
+.btn-reactivate:hover {
+    background: #494b4e;
+}
+.titulo-pagina {
+        font-size: 26px;
+        font-weight: bold;
+        margin-bottom: 25px;
+        color: #263238;
+    }
+
+</style>
+
+
+<h1 class="titulo-pagina">Gerenciar Usuários</h1>
+
+<!-- FORMULÁRIO DE CRIAÇÃO -->
+<div class="form-card">
+    <h2><i class="bi bi-person-plus"></i> Criar Novo Usuário</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <label for="username">Nome de Usuário</label>
+        <input type="text" id="username" name="username" required>
+
+        <label for="email">E-mail</label>
+        <input type="email" id="email" name="email">
+
+        <label for="senha">Senha</label>
+        <input type="password" id="senha" name="senha" required>
+
+        <label for="cargo">Cargo</label>
+        <select name="cargo" id="cargo" required>
+            <option value="">Selecione...</option>
+            <option value="admin_global">Administrador Global</option>
+            <option value="diretoria">Diretoria</option>
+            <option value="coordenacao">Coordenação</option>
+        </select>
+
+        <div id="polo_field">
+            <label for="polo">Polo</label>
+            <select name="polo" id="polo">
+                <option value="">-- Selecione um Polo --</option>
+                {% for p in polos %}
+                    <option value="{{ p.id }}">{{ p.nome }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit">Criar Usuário</button>
+    </form>
+</div>
+
+
+<!-- LISTAGEM DE USUÁRIOS -->
+<div class="table-card">
+    <h2><i class="bi bi-people"></i> Usuários Cadastrados</h2>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Usuário</th>
+                    <th>Email</th>
+                    <th>Cargo</th>
+                    <th>Polo</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for u in usuarios %}
+                <tr>
+                    <td>{{ u.username }}</td>
+                    <td>{{ u.email|default:"-" }}</td>
+                    <td>{{ u.perfilusuario.get_cargo_display }}</td>
+                    <td>
+                        {% if u.perfilusuario.polo %}
+                            {{ u.perfilusuario.polo.nome }}
+                        {% else %}
+                            — Global —
+                        {% endif %}
+                    </td>
+
+                    <td>
+
+                        <!-- Editar -->
+                        <a href="{% url 'portal:editar_usuario' u.id %}" 
+                        class="action-btn btn-edit"  
+                        title="Editar este usuário">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+
+                        <!-- Remover Acesso -->
+                        {% if u.is_active %}
+                            <!-- BOTÃO DE REMOVER ACESSO -->
+                            <a href="{% url 'portal:remover_acesso' u.id %}" 
+                            class="action-btn btn-remove" 
+                            title="Desativar acesso deste usuário">
+                            <i class="bi bi-person-x"></i>
+                            </a>
+                        {% else %}
+                            <!-- BOTÃO DE REATIVAR ACESSO -->
+                            <a href="{% url 'portal:reativar_acesso' u.id %}" 
+                            class="action-btn btn-reactivate" 
+                            title="Reativar acesso deste usuário">
+                            <i class="bi bi-person-check"></i>
+                            </a>
+                        {% endif %}
+
+                        <!-- Excluir definitivamente -->
+                        <form action="{% url 'portal:excluir_usuario' u.id %}" 
+                            method="POST"
+                            style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="action-btn btn-delete" 
+                                    onclick="return confirm('Tem certeza que deseja excluir este usúario permanentemente?');">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+
+                    </td>
+                </tr>
+
+                {% empty %}
+                <tr>
+                    <td colspan="5" style="text-align:center; padding:20px;"><i class="bi bi-exclamation-circle"></i> Nenhum usuário encontrado.</td>
+                </tr>
+
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+const cargoSelect = document.getElementById('cargo');
+const poloField = document.getElementById('polo_field');
+
+function togglePoloField() {
+    poloField.style.display = cargoSelect.value === 'admin_global' ? 'none' : 'block';
+}
+
+cargoSelect.addEventListener('change', togglePoloField);
+togglePoloField();
+</script>
+
+{% endblock %}

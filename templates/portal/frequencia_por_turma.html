@@ -1,0 +1,200 @@
+{% extends 'base_polo.html' %}
+{% block title %}Frequências da Turma{% endblock %}
+
+{% block content %}
+
+<style>
+
+h2 {
+    color: #2c3e50;
+    font-weight: 700;
+    margin-bottom: 25px;
+    font-size: 2rem;
+    text-align: center;
+}
+
+.frequencia-container {
+    margin-top: 20px;
+    display: grid;
+    gap: 30px;
+}
+
+
+.form-inline {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.form-con {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 8px 12px;
+    width: 300px;
+    font-size: 1rem;
+}
+
+.bt-notas {
+    display: inline;
+    background-color: #2c3e50;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    align-items: center;
+    gap: 6px;
+    transition: 0.2s;
+}
+
+.bt-notas:hover {
+    background-color: #1f2a34;
+}
+
+
+.card-aula {
+    background: white;
+    border-radius: 14px;
+    padding: 20px 25px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border-left: 6px solid #2c3e50;
+}
+
+.card-aula h3 {
+    margin: 0 0 15px 0;
+    font-size: 1.2rem;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+
+.frequencia-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.frequencia-table th,
+.frequencia-table td {
+    padding: 12px 14px;
+    font-size: 0.95rem;
+    text-align: left;
+    vertical-align: middle; /* <- ALINHA PERFEITAMENTE */
+}
+
+.frequencia-table th {
+    background-color: #2c3e50;
+    color: white;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+.frequencia-table tr td {
+    border-bottom: 1px solid #d8d8d8;
+}
+
+.frequencia-table tr:last-child td {
+    border-bottom: none; /* remove a borda da última linha */
+}
+
+.frequencia-table tr:hover td {
+    background-color: #f3f6f9;
+}
+p{
+    display: flex;
+    justify-content: center;
+    color: #555;
+    font-size: 15px;
+  }
+  
+
+.bt {
+
+    margin-top: 25px;
+    background-color: #2c3e50;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    font-size: 1rem;
+    border-radius: 10px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    transition: 0.2s;
+}
+
+.bt:hover {
+    background-color: #1f2a34;
+}
+</style>
+
+<h2><i class="bi bi-journal-check"></i> Frequências da Turma: {{ turma.nome }}</h2>
+
+<div>
+  <form method="get" class="form-inline">
+      <input type="text" name="q" value="{{ busca }}" placeholder="Pesquisar por disciplina, professor ou horário" class="form-con">
+      <button type="submit" class="bt-notas"><i class="bi bi-search"></i> Buscar</button>
+
+      {% if busca %}
+        <a href="?">
+            <button type="button" class="bt-notas">
+                <i class="bi bi-x-circle"></i> Limpar
+            </button>
+        </a>
+      {% endif %}
+  </form>
+    <a href="{% url 'escolas:lancar_frequencia' polo.id%}?turma_id={{ turma.id }}">
+    <button class="bt-notas" type="button" >
+        <i class="bi bi-clipboard-check"></i> Fazer Chamada
+    </button>
+    </a>
+    <a href="{% url 'escolas:aulas_da_turma' polo.id turma.id %}">
+        <button type="button" class="bt-notas" >
+            <i class="bi bi-pencil-square"></i> Editar Frequencia
+        </button>
+        </a>
+    </form>
+</div>
+
+<div class="frequencia-container">
+
+{% for aula, dados in frequencias_por_aula.items %}
+    <div class="card-aula">
+
+        <h3>
+          Aula de <strong>{{ aula.disciplina.nome }}</strong> —
+          <i class="bi bi-calendar-event"></i> {{ aula.data|date:"d/m/Y" }} às {{ aula.horario }}
+          <br>
+          Professor(a): 
+          <strong>{{ dados.professor.nome|default:"Sem professor definido" }}</strong>
+        </h3>
+
+        <table class="frequencia-table">
+            <tr>
+                <th>Aluno</th>
+                <th>Presença</th>
+            </tr>
+
+            {% for frequencia in dados.frequencias %}
+            <tr>
+                <td>{{ frequencia.aluno.nome }}</td>
+                <td>{{ frequencia.presente|yesno:"Sim,Não" }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+    </div>
+    {% empty %}
+    <p><i class="bi bi-exclamation-circle"></i> Nao ha frequencias lancadas</p>
+
+    {% endfor %}
+
+
+<form action="{% url 'escolas:detalhes_da_turma' polo.id turma.id %}" method="get">
+    <button class="bt" type="submit">Voltar</button>
+</form>
+
+</div>
+
+{% endblock %}

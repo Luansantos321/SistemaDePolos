@@ -1,0 +1,110 @@
+{% extends 'base_polo.html' %}
+{% load static %}
+{% block title %}Vincular Professor{% endblock %}
+{% block content %}
+<style>
+/* Container principal */
+.container-form {
+    background: #f4f4f4;
+    padding: 25px 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    max-width: 700px;
+    margin: 20px auto;
+}
+
+/* Títulos */
+h2 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+/* Labels */
+label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: #2c3e50;
+}
+
+/* Selects */
+select {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+/* Botão principal */
+button {
+    background: #2c3e50;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+button:hover {
+    background: #1f2a38;
+    transform: translateY(-2px);
+}
+
+/* Mensagem de erro */
+.error-msg {
+    color: #d9534f;
+    font-weight: 500;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+/* Card de formulário */
+.form-card {
+    background: white;
+    padding: 20px 25px;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+}
+</style>
+
+<div class="container-form form-card">
+    <h2><i class="bi bi-person-badge"></i> Atribuir Professor & Disciplina</h2>
+    <h4 style="text-align:center; color:#2c3e50;">Turma {{ turma.nome }}</h4>
+
+    {% if erro %}
+    <p class="error-msg">{{ erro }}</p>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <label><i class="bi bi-person-fill"></i> Professor:</label>
+        <select name="professor" required>
+            <option value="">Selecione</option>
+            {% for professor in professores %}
+            <option value="{{ professor.id }}">{{ professor.nome }}</option>
+            {% endfor %}
+        </select>
+
+        <label><i class="bi bi-book"></i> Disciplina:</label>
+        <select name="disciplina" required>
+            <option value="">Selecione</option>
+            {% for disciplina in disciplinas %}
+            <option value="{{ disciplina.id }}">{{ disciplina.nome }}</option>
+            {% endfor %}
+        </select>
+
+        <button type="submit"><i class="bi bi-save"></i> Salvar</button>
+    </form>
+</div>
+
+{% endblock %}

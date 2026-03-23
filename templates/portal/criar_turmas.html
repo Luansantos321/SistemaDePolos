@@ -1,0 +1,121 @@
+{% extends 'base_polo.html' %}
+{% load static %}
+{% block title %}Criar Turma{% endblock %}
+
+{% block content %}
+
+<style>
+.page-wrapper {
+    max-width: 850px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.card-box {
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    border-top: 5px solid #2c3e50;
+}
+
+.page-title {
+    text-align: center;
+    color: #2c3e50;
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    text-align: center;
+    color: #555;
+    font-size: 15px;
+    margin-bottom: 25px;
+}
+
+label {
+    font-weight: 600;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+input, select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #d0d4d9;
+    border-radius: 8px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    font-size: 14px;
+    transition: .2s;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: #2c3e50;
+    box-shadow: 0 0 5px rgba(44,62,80,0.4);
+}
+
+.btn-submit {
+    background: #2c3e50;
+    color: white;
+    padding: 12px;
+    width: 100%;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: .2s;
+    margin-top: 5px;
+}
+
+.btn-submit:hover {
+    background: #1e2c38;
+}
+
+</style>
+
+<div class="page-wrapper">
+    <div class="card-box">
+        <h2 class="page-title"><i class="bi bi-clipboard-plus"></i> Criar Turma</h2>
+        <p class="subtitle">Preencha as informações para cadastrar uma nova turma</p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <label><i class="bi bi-type"></i> Nome da Turma:</label>
+            <input type="text" name="nome" required>
+
+            <label><i class="bi bi-calendar-check"></i> Ano:</label>
+            <input type="text" name="ano" required>
+
+            <label><i class="bi bi-calendar-event"></i> Ano Letivo:</label>
+            <input type="text" name="ano_letivo" placeholder="Ex: 2025">
+
+            <label><i class="bi bi-clock"></i> Turno:</label>
+            <select name="turno" required>
+                <option value="">Selecione...</option>
+                <option value="Manhã">Matutino</option>
+                <option value="Tarde">Vespertino</option>
+                <option value="Integral">Integral</option>
+            </select>
+
+            {% if user.perfilusuario.is_admin_global %}
+                <label><i class="bi bi-building"></i> Polo:</label>
+                <select name="polo" required>
+                    <option value="">Selecione...</option>
+                    {% for p in polos %}
+                        <option value="{{ p.id }}">{{ p.nome }}</option>
+                    {% endfor %}
+                </select>
+            {% endif %}
+
+            <button type="submit" class="btn-submit"><i class="bi bi-save"></i> Salvar Turma</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

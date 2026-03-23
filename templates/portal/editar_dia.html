@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% block title %}Editar dia{% endblock %}
+
+{% block content %}
+
+<style>
+.container-edit {
+    max-width: 500px;
+    margin: 40px auto;
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0px 5px 20px rgba(0,0,0,0.1);
+    font-family: "Inter", sans-serif;
+}
+
+.title-edit {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #104370;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #2c3e50;
+}
+
+/* Inputs */
+select, input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #dfe7f0;
+    font-size: 0.9rem;
+    transition: 0.2s;
+}
+
+select:focus, input:focus {
+    outline: none;
+    border-color: #104370;
+}
+
+/* Botões */
+.btn-save {
+    width: 100%;
+    padding: 12px;
+    background: #104370;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-save:hover {
+    background: #0c3154;
+}
+
+/* Botão voltar */
+.btn-back {
+    display: block;
+    margin-top: 15px;
+    text-align: center;
+    text-decoration: none;
+    color: #104370;
+    font-weight: 600;
+}
+
+/* Preview da cor */
+.preview {
+    margin-top: 10px;
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+}
+
+/* Cores */
+.green { background: #4caf50; color:#fff; }
+.red { background: #e53935; color:#fff; }
+.yellow { background: #ffeb3b; color:#000; }
+.blue { background: #2196f3; color:#fff; }
+.purple { background: #8e44ad; color:#fff; }
+.orange { background: #ff9800; color:#fff; }
+.default { background: #eee; color:#000; }
+
+</style>
+
+<div class="container-edit">
+
+    <div class="title-edit">
+        Editar dia - {{ dia.data|date:"d/m/Y" }}
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label>Tipo do dia:</label>
+            <select name="tipo" id="tipo">
+                {% for value,label in dia.TIPOS_DIAS %}
+                <option value="{{ value }}" {% if value == dia.tipo %}selected{% endif %}>
+                    {{ label }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <!-- Preview -->
+            <div id="preview" class="preview default">
+                Visual do dia
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Descrição:</label>
+            <input type="text" name="descricao" value="{{ dia.descricao }}">
+        </div>
+
+        <button type="submit" class="btn-save">Salvar</button>
+    </form>
+
+    <a class="btn-back" href="{% url 'escolas:calendario_admin_ano' ano=dia.data.year %}">
+        ← Voltar ao calendário
+    </a>
+
+</div>
+
+<script>
+const tipoSelect = document.getElementById('tipo');
+const preview = document.getElementById('preview');
+
+const cores = {
+    letivo: 'green',
+    feriado: 'red',
+    sabado_letivo: 'yellow',
+    avaliacao: 'blue',
+    reuniao: 'purple',
+    eventos: 'orange'
+};
+
+function atualizarPreview() {
+    const valor = tipoSelect.value;
+
+    preview.className = 'preview'; // reset
+
+    if (cores[valor]) {
+        preview.classList.add(cores[valor]);
+    } else {
+        preview.classList.add('default');
+    }
+
+    preview.innerText = tipoSelect.options[tipoSelect.selectedIndex].text;
+}
+
+tipoSelect.addEventListener('change', atualizarPreview);
+
+// inicializa ao carregar
+atualizarPreview();
+</script>
+
+{% endblock %}

@@ -1,0 +1,159 @@
+{% extends "base_polo.html" %}
+{% load static %}
+
+{% block title %}Grade Horária - {{ turma.nome }}{% endblock %}
+
+{% block content %}
+
+<style>
+    :root {
+        --primary: #2c3e50;
+        --primary-light: #34495e;
+        --bg-light: #f4f6f7;
+        --text-dark: #2c3e50;
+    }
+
+    /* Área principal */
+    .grade-container {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    /* Título */
+    .grade-title {
+        color: var(--primary);
+        font-weight: 700;
+        font-size: 2rem;
+        margin-bottom: 25px;
+    }
+
+    /* Tabela */
+    .table thead th {
+        background: var(--primary);
+        color: white;
+        font-size: 0.95rem;
+        padding: 12px;
+        letter-spacing: .5px;
+    }
+
+    .table tbody td {
+        background: white;
+        vertical-align: middle;
+        padding: 10px;
+    }
+
+    /* Card de aula */
+    .aula-card {
+        background: var(--bg-light);
+        border-left: 4px solid var(--primary);
+        padding: 8px 10px;
+        border-radius: 8px;
+        color: var(--text-dark);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+        transition: .2s ease;
+    }
+
+    .aula-card:hover {
+        background: #eaecee;
+        transform: scale(1.03);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    /* Horários */
+    .horario-col {
+        font-weight: 700;
+        color: var(--primary);
+        background: #ecf0f1;
+    }
+
+    /* Botão voltar */
+    .btn-voltar {
+        margin-top: 20px;
+        padding: 10px 18px;
+        font-size: 1rem;
+        border-radius: 8px;
+        background: var(--primary);
+        color: white;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-voltar:hover {
+        background: var(--primary-light);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        color: white;
+    }
+
+    .empty-slot {
+        color: #bdc3c7;
+        font-size: .9rem;
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="grade-container">
+        
+        <h2 class="grade-title text-center">
+            <i class="bi bi-calendar3"></i> Grade Horária - {{ turma.nome }}
+        </h2>
+
+        <div class="table-responsive">
+            <table class="table table-bordered text-center align-middle">
+                <thead>
+                    <tr>
+                        <th><i class="bi bi-clock-history"></i> Horário</th>
+                        {% for dia in dias_semana %}
+                            <th><i class="bi bi-calendar-week"></i> {{ dia }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for linha in grade %}
+                    <tr>
+                        <td class="horario-col">
+                            {{ linha.horario.0|time:"H:i" }}
+                            <br>
+                            <span style="font-size: .8rem;">até</span>
+                            <br>
+                            {{ linha.horario.1|time:"H:i" }}
+                        </td>
+
+                        {% for aula in linha.dias %}
+                            <td>
+                                {% if aula %}
+                                    <div class="aula-card">
+                                        <b>{{ aula.disciplina.nome }}</b><br>
+                                        <small>
+                                            <i class="bi bi-person-badge"></i>
+                                            {{ aula.professor.nome }}
+                                        </small>
+                                    </div>
+                                {% else %}
+                                    <span class="empty-slot">
+                                        <i class="bi bi-dash-lg"></i> Livre
+                                    </span>
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="text-center">
+            <a href="{% url 'escolas:listar_turmas' polo.id %}" class="btn-voltar">
+                <i class="bi bi-arrow-left"></i> Voltar
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

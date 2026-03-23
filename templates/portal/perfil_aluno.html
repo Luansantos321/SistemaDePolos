@@ -1,0 +1,561 @@
+{% extends 'base_polo.html' %}
+{% load static %}
+{% load custom_tags %}
+{% block title %}Perfil do Aluno{% endblock %}
+
+{% block content %}
+<style>
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #34495e;
+    --light-bg: #f4f6f7;
+    --card-bg: #ffffff;
+    --text-dark: #2c3e50;
+    --text-muted: #7f8c8d;
+    --accent-color: #1abc9c;
+    --danger-color: #e74c3c;
+    --shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+/*  Layout geral */
+.container-perfil {
+    max-width: 1100px;
+    margin: 40px auto;
+    background: var(--light-bg);
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+}
+
+/*  Cabeçalho */
+.header-perfil {
+    text-align: center;
+    margin-bottom: 30px;
+}
+.header-perfil h2 {
+    color: var(--primary-color);
+    font-size: 2rem;
+    margin-bottom: 5px;
+}
+.header-perfil p {
+    color: var(--text-muted);
+    font-size: 1rem;
+}
+
+.card-aluno {
+    display: flex;
+    gap: 25px;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+    align-items: center;
+}
+
+.foto-wrapper {
+    flex-shrink: 0;
+}
+
+.foto-aluno {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #2c3e50;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.dados-aluno h2 {
+    color: #2c3e50;
+    margin-bottom: 8px;
+    font-size: 1.5rem;
+}
+
+.dados-aluno p {
+    margin: 3px 0;
+    color: #333;
+    font-size: 0.95rem;
+}
+
+.info-section {
+    background: #f9fafb;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+}
+
+.info-section h3 {
+    color: #2c3e50;
+    border-bottom: 2px solid #2c3e50;
+    padding-bottom: 6px;
+    margin-bottom: 15px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 8px 20px;
+}
+
+.info-grid p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #444;
+}
+
+
+/*  Grid de disciplinas */
+.cards-disciplinas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+    gap: 20px;
+}
+.card-disciplina {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+    transition: transform 0.3s ease;
+}
+.card-disciplina:hover {
+    transform: translateY(-5px);
+}
+.card-disciplina h4 {
+    color: var(--primary-color);
+    margin-bottom: 10px;
+    font-weight: bold;
+    font-size: 1.2rem;
+    border-bottom: 2px solid var(--accent-color);
+    display: inline-block;
+    padding-bottom: 3px;
+}
+.card-disciplina p {
+    font-size: 0.95rem;
+    margin: 4px 0;
+    color: var(--text-dark);
+}
+
+/*  Gráficos */
+.canvas-card {
+    width: 100%;
+    max-width: 260px;
+    height: 180px;
+    margin: 15px auto 5px;
+}
+
+/*  Botões */
+.btn-container {
+    text-align: center;
+    margin-top: 30px;
+}
+.bt, .bt-notas {
+    background-color: var(--primary-color);
+    color: #fff;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    margin: 8px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+.bt:hover, .bt-notas:hover {
+    background-color: var(--secondary-color);
+}
+/* Card e inputs */
+.whatsapp-card {
+    background: #fff;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.whatsapp-card:hover { 
+    transform: translateY(-3px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.15); }
+.whatsapp-card h3 { 
+    color: #2c3e50;
+    font-size: 1.5rem; 
+    margin-bottom: 15px; 
+    border-bottom: 2px solid #2c3e50; 
+    display: inline-block; 
+    padding-bottom: 5px; }
+.whatsapp-card textarea { 
+    width:100%; 
+    border-radius:12px; 
+    border:1px solid #ccc; 
+    padding:12px; 
+    font-size:0.95rem; 
+    resize:none; 
+    transition:border 0.3s ease, 
+    box-shadow 0.3s ease; }
+.whatsapp-card textarea:focus { 
+    outline:none; border-color:#2c3e50; 
+    box-shadow:0 0 8px rgba(26,188,156,0.3); }
+.preview-container { 
+    background:#f4f6f7; 
+    border-radius:10px; 
+    padding:10px; 
+    margin:12px 0; 
+    color:#2c3e50; 
+    min-height:40px; 
+    font-size:0.95rem; }
+.btn-whatsapp { 
+    background:linear-gradient(135deg, #2c3e50, #34495e); 
+    color:#fff; 
+    padding:12px 22px; 
+    border:none; 
+    border-radius:12px; 
+    margin-top:12px; 
+    cursor:pointer; 
+    font-size:1rem; 
+    font-weight:500; 
+    transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.btn-whatsapp:hover { 
+    background-color: #34495e;
+    transform: translateY(-2px); 
+    box-shadow:0 6px 12px rgba(0,0,0,0.2); }
+
+/* Modal */
+.modal { 
+    display:none; 
+    position:fixed; 
+    z-index:1000; 
+    left:0; 
+    top:0; 
+    width:100%; 
+    height:100%; 
+    overflow:auto; 
+    background-color:rgba(0,0,0,0.5); }
+.modal-content { 
+    background:#fff; 
+    margin:15% auto; 
+    padding:20px; 
+    border-radius:16px; 
+    width:90%; 
+    max-width:400px; 
+    text-align:center; 
+    box-shadow:0 8px 25px rgba(0,0,0,0.2); }
+.modal-content h4 { 
+    margin-bottom:15px; 
+    color:#2c3e50; }
+.modal-content p { 
+    margin-bottom:20px; 
+    font-size:1rem; 
+    color:#2c3e50; }
+.close { 
+    color:#aaa; 
+    float:right; 
+    font-size:28px; 
+    font-weight:bold; 
+    cursor:pointer; }
+.close:hover { 
+    color:#000; 
+}
+.btn-cancel { 
+    background:#e74c3c; 
+    color:#fff; 
+    padding:10px 18px; 
+    border:none; 
+    border-radius:12px; 
+    cursor:pointer; 
+    margin-left:10px; 
+    transition:0.2s; }
+.btn-cancel:hover { 
+    background:#c0392b;
+    }
+</style>
+
+<div class="container-perfil">
+    <div class="header-perfil">
+        <h2><i class="bi bi-person-lines-fill"></i> Perfil do Aluno</h2>
+        <p>Visualize informações acadêmicas, notas e frequência</p>
+    </div>
+
+<div class="card-aluno">
+    <div class="foto-wrapper">
+        {% if aluno.foto %}
+            <img src="{{ aluno.foto.url }}" alt="Foto do aluno {{ aluno.nome }}" class="foto-aluno">
+        {% else %}
+            <img src="{% static 'img/imagem-padrao-usuario.jpg' %}" alt="Foto padrão" class="foto-aluno">
+        {% endif %}
+    </div>
+
+    <div class="dados-aluno">
+        <h2>{{ aluno.nome }}</h2>
+        <p><strong>Matrícula:</strong> {{ aluno.matricula }}</p>
+        <p><strong>Status Matrícula:</strong> {{ aluno.get_status_matricula_display }}</p>
+        <p><strong>Turma Atual:</strong> {{ aluno.turma.nome|default:"Nenhuma" }}</p>
+        <p><strong>Data de Nascimento:</strong> {{ aluno.data_nascimento|date:"d/m/Y" }}</p>
+        <p><strong>Sexo:</strong> {{ aluno.sexo }}</p>
+        <p><strong>Cor/Raça:</strong> {{ aluno.cor_raca }}</p>
+        <p><strong>Nacionalidade:</strong> {{ aluno.nacionalidade }}</p>
+        <p><strong>Naturalidade:</strong> {{ aluno.municipio_nascimento }} - {{ aluno.estado_nascimento }}</p>
+    </div>
+</div>
+
+<!-- ===== DADOS DOCUMENTAIS ===== -->
+<div class="info-section">
+    <h3><i class="bi bi-file-earmark-text-fill"></i> Documentos</h3>
+    <div class="info-grid">
+        <p><strong>RG:</strong> {{ aluno.rg }}</p>
+        <p><strong>Órgão Emissor:</strong> {{ aluno.orgao_emissor }}/{{ aluno.uf_rg }}</p>
+        <p><strong>Data de Expedição:</strong> {{ aluno.data_expedicao_rg|date:"d/m/Y" }}</p>
+        <p><strong>CPF:</strong> {{ aluno.cpf }}</p>
+        <p><strong>NIS:</strong> {{ aluno.nis }}</p>
+        <p><strong>Cartão SUS:</strong> {{ aluno.cartao_sus }}</p>
+        <p><strong>Bolsa Família:</strong> {% if aluno.bolsa_familia %}Sim{% else %}Não{% endif %}</p>
+        <p><strong>Origem Quilombola:</strong> {% if aluno.origem_quilombola %}Sim{% else %}Não{% endif %}</p>
+    </div>
+</div>
+
+<!-- ===== ENDEREÇO ===== -->
+<div class="info-section">
+    <h3><i class="bi bi-geo-alt-fill"></i> Endereço</h3>
+    <div class="info-grid">
+        <p><strong>Endereço:</strong> {{ aluno.endereco }}, {{ aluno.numero }} {{ aluno.complemento }}</p>
+        <p><strong>Bairro:</strong> {{ aluno.bairro }}</p>
+        <p><strong>Município:</strong> {{ aluno.municipio }} - {{ aluno.uf_endereco }}</p>
+    </div>
+</div>
+
+<!-- ===== RESPONSÁVEIS ===== -->
+<div class="info-section">
+    <h3><i class="bi bi-people-fill"></i> Responsáveis</h3>
+    <div class="info-grid">
+        <p><strong>Nome da Mãe:</strong> {{ aluno.nome_mae }}</p>
+        <p><strong>Contato da Mãe:</strong> {{ aluno.contato_mae }}</p>
+        <p><strong>Nome do Pai:</strong> {{ aluno.nome_pai }}</p>
+        <p><strong>Contato do Pai:</strong> {{ aluno.contato_pai }}</p>
+    </div>
+</div>
+
+<!-- ===== SAÚDE E TRANSPORTE ===== -->
+<div class="info-section">
+    <h3><i class="bi bi-heart-pulse-fill"></i> <i class="bi bi-bus-front-fill"></i>  Saúde e Transporte</h3>
+    <div class="info-grid">
+        <p><strong>Tipo de Deficiência:</strong> {{ aluno.tipo_deficiencia|default:"Nenhuma" }}</p>
+        <p><strong>Alergia Alimentar:</strong> {% if aluno.alergia_alimentar %}Sim{% else %}Não{% endif %}</p>
+        {% if aluno.alergia_alimentar %}
+            <p><strong>Descrição:</strong> {{ aluno.descricao_alergia }}</p>
+        {% endif %}
+        <p><strong>Transporte Escolar:</strong> {% if aluno.transporte_escolar %}Sim{% else %}Não{% endif %}</p>
+        {% if aluno.transporte_escolar %}
+            <p><strong>Tipo de Veículo:</strong> {{ aluno.tipo_veiculo }}</p>
+        {% endif %}
+    </div>
+</div>
+
+
+    <!-- Cards das disciplinas -->
+    <div class="cards-disciplinas">
+        {% for item in disciplinas %}
+        <div class="card-disciplina">
+            {% if polo and turma %}
+           
+                <h4><a href="{% url 'escolas:ver_notas_da_turma' polo.id turma.id disciplina.id %}"><i class="bi bi-file-earmark-medical-fill"></i> {{ item.disciplina.nome }}</h4></a>
+            {% else %}
+                <h4><i class="bi bi-file-earmark-medical-fill"></i> {{ item.disciplina.nome }}</h4>
+            {% endif %}
+            <p><strong>Status:</strong> {{ item.status }}</p>
+            <p><strong>Média Final:</strong> {{ item.media_final|floatformat:1 }}</p>
+            <p><strong>Frequência:</strong> {{ item.frequencia_media|floatformat:1 }}%</p>
+
+            <canvas id="graficoNotas{{ forloop.counter }}" class="canvas-card"></canvas>
+            <canvas id="graficoFreq{{ forloop.counter }}" class="canvas-card"></canvas>
+         
+        </div>
+
+        {% empty %}
+            <p style="text-align:center; color:var(--danger-color);"><i class="bi bi-exclamation-circle"></i> Nenhuma disciplina encontrada.</p>
+        {% endfor %}
+    </div>
+
+    <!-- Botões -->
+    <div class="btn-container">
+
+  
+            <div class="whatsapp-card">
+                <h3>📱 Enviar mensagem ao responsável</h3>
+                <form id="whatsappForm" method="post" action="">
+                    {% csrf_token %}
+                    <textarea id="mensagemInput" name="mensagem" rows="4" placeholder="Digite sua mensagem..."></textarea>
+                    <div class="preview-container">
+                        <strong>Pré-visualização:</strong>
+                        <p id="mensagemPreview">A mensagem aparecerá aqui...</p>
+                    </div>
+                    <button type="button" class="btn-whatsapp" id="enviarBtn">📤 Enviar via WhatsApp</button>
+                </form>
+            </div>
+            <!-- Modal de confirmação -->
+            <div id="confirmModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h4>Confirmar envio</h4>
+                    <p id="modalMensagem"></p>
+                    <button id="confirmSend" class="btn-whatsapp">✅ Confirmar envio</button>
+                    <button id="cancelSend" class="btn-cancel">❌ Cancelar</button>
+                </div>
+            </div>
+
+
+        
+            <form action="{% url 'escolas:historico_escolar' polo.id aluno.id%}" method="get" style="display:inline;">
+                <button type="submit" class="bt-notas">📄 Histórico Escolar</button>
+            </form>
+            <form action="{% url 'escolas:editar_aluno'  aluno.id%}" style="display:inline;">
+                <button type="submit" class="bt-notas"><i class="bi bi-pencil-square"></i> Editar Aluno</button>
+            </form>
+            {% if aluno.status_matricula == 'ativo' %}
+                <form action="" method="get" style="display:inline;">
+                    <button type="submit" class="bt-notas">📝 Transferência</button>
+                </form>
+            {% endif %}
+       
+        <form action="{% url 'escolas:listar_turmas' polo.id%}" method="get" style="display:inline;">
+            <button class="bt" type="submit"> Voltar</button>
+        </form>
+    </div>
+</div>
+
+<!-- ✅ Gráficos -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Atualiza preview em tempo real
+    const mensagemInput = document.getElementById('mensagemInput');
+    const mensagemPreview = document.getElementById('mensagemPreview');
+    mensagemInput.addEventListener('input', () => {
+        mensagemPreview.textContent = mensagemInput.value || "A mensagem aparecerá aqui...";
+    });
+
+    // Modal de confirmação
+    const modal = document.getElementById('confirmModal');
+    const closeModal = document.querySelector('.close');
+    const enviarBtn = document.getElementById('enviarBtn');
+    const confirmSend = document.getElementById('confirmSend');
+    const cancelSend = document.getElementById('cancelSend');
+    const modalMensagem = document.getElementById('modalMensagem');
+
+    enviarBtn.addEventListener('click', () => {
+        if (!mensagemInput.value.trim()) {
+            alert('Digite uma mensagem antes de enviar.');
+            return;
+        }
+        modalMensagem.textContent = mensagemInput.value;
+        modal.style.display = 'block';
+    });
+
+    closeModal.onclick = () => { modal.style.display = 'none'; }
+    cancelSend.onclick = () => { modal.style.display = 'none'; }
+
+    confirmSend.onclick = () => {
+        document.getElementById('whatsappForm').submit();
+    }
+
+    // Fecha modal clicando fora
+    window.onclick = function(event) {
+        if (event.target == modal) modal.style.display = "none";
+    }
+
+{% for item in disciplinas %}
+    // 🟩 Gráfico de Notas (moderno)
+    const ctxNotas{{ forloop.counter }} = document.getElementById('graficoNotas{{ forloop.counter }}');
+    new Chart(ctxNotas{{ forloop.counter }}, {
+        type: 'bar',
+        data: {
+            labels: [{% for b in item.bimestres %}'{{ b }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+            datasets: [{
+                label: 'Nota + Simulado',
+                data: [{% for b in item.bimestres %}{{ item.notas_por_bimestre|get_item:b|default:0 }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                backgroundColor: '#2c3e50',
+                borderColor: '#16a085',
+                borderWidth: 1,
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                title: {
+                    display: true,
+                    text: 'Desempenho por Unidade',
+                    color: '#2c3e50',
+                    font: { size: 14, weight: 'bold' }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 10,
+                    ticks: { color: '#2c3e50', stepSize: 2 },
+                    grid: { color: '#ecf0f1' }
+                },
+                x: {
+                    ticks: { color: '#2c3e50' },
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+
+    // 🟦 Gráfico de Frequência (corrigido)
+(function() {
+    // pega o valor bruto que vem do template como string (garantindo fallback)
+    const rawPresenca{{ forloop.counter }} = "{{ item.frequencia_media|default:'0' }}";
+    // converte para número (troca vírgula por ponto se houver)
+    const presenca{{ forloop.counter }} = parseFloat(rawPresenca{{ forloop.counter }}.replace(',', '.')) || 0;
+    // calcula faltas de forma segura (garante que some 100)
+    const falta{{ forloop.counter }} = Math.max(0, 100 - presenca{{ forloop.counter }});
+
+    // debug rápido (abra o console do navegador)
+    console.log("Frequência (presença, falta) #{{ forloop.counter }}:", presenca{{ forloop.counter }}, falta{{ forloop.counter }});
+
+    const canvasEl = document.getElementById('graficoFreq{{ forloop.counter }}');
+    if (!canvasEl) {
+        console.warn('Canvas não encontrado: graficoFreq{{ forloop.counter }}');
+        return;
+    }
+
+    const ctx = canvasEl.getContext('2d');
+
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Presenças', 'Faltas'],
+            datasets: [{
+                data: [presenca{{ forloop.counter }}, falta{{ forloop.counter }}],
+                // cores correspondendo à ordem dos labels: presença -> verde, falta -> vermelho
+                backgroundColor: ['#2c3e50', '#e74c3c'],
+                // hoverBackgroundColor pode não ser necessário em versões novas; use hoverOffset para destaque
+                borderColor: '#ffffff',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: '#2c3e50', font: { size: 12 } }
+                },
+                title: {
+                    display: true,
+                    text: 'Frequência (%)',
+                    color: '#2c3e50',
+                    font: { size: 14, weight: 'bold' }
+                }
+            },
+            cutout: '70%',
+            // pequeno destaque ao passar o mouse (opcional)
+            hoverOffset: 6
+        }
+    });
+})();
+
+{% endfor %}
+</script>
+{% endblock %}

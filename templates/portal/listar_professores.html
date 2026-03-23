@@ -1,0 +1,99 @@
+{% extends 'base_polo.html' %}
+{% load static %}
+{% block title %}Professores{% endblock %}
+{% block content %}
+
+<style>
+    .professores-container {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 20px;
+    font-family: "Segoe UI", sans-serif;
+}
+
+.professores-container h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 26px;
+    color: #2c3e50;
+}
+
+/* Grid de cards */
+.cards-professores {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px;
+}
+
+/* Card individual */
+.card-professor {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px 15px;
+    text-align: center;
+    text-decoration: none;
+    color: #2c3e50;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-professor:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+
+/* Foto */
+.card-foto img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #eaeaea;
+    margin-bottom: 12px;
+    transition: transform 0.3s ease;
+}
+
+.card-professor:hover .card-foto img {
+    transform: scale(1.08);
+}
+
+/* Nome */
+.card-professor h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* Nenhum professor */
+.nenhum {
+    grid-column: 1/-1;
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+}
+
+</style>
+<div class="professores-container">
+    <h2><i class="bi bi-person-lines-fill"></i> Lista de Professores do {{polo.nome}}</h2>
+
+    <div class="cards-professores">
+        {% for professor in professores %}
+        <a href="" class="card-professor">
+            <div class="card-foto">
+                {% if professor.foto %}
+                    <img src="{{ professor.foto.url }}" alt="Foto de {{ professor.nome }}">
+                {% elif professor.user and professor.user.foto %}
+                    <img src="{{ professor.user.foto.url }}" alt="Foto de {{ professor.nome }}">
+                {% else %}
+                    <img src="{% static 'img/imagem-padrao-usuario.jpg' %}" alt="Foto padrão">
+                {% endif %}
+            </div>
+            <h3>{{ professor.nome }}</h3>
+        </a>
+        {% empty %}
+        <p class="nenhum"><i class="bi bi-exclamation-circle"></i> Nenhum professor cadastrado.</p>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

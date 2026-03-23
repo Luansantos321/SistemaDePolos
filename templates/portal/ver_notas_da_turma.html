@@ -1,0 +1,335 @@
+{% extends 'base_polo.html' %}
+{% load custom_tags %}
+
+{% block title %}Notas da Turma{% endblock %}
+
+{% block content %}
+<style>
+/* 🌐 Layout principal */
+.container-detalhes {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: #f4f6f8;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* 📘 Título */
+.container-detalhes h2 {
+    color: #2c3e50;
+    text-align: center;
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 35px;
+}
+
+/* 📊 Cards resumo */
+.cards-resumo {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 25px;
+    margin-bottom: 40px;
+}
+.card-resumo {
+    background: linear-gradient(135deg, #2c3e50, #4b6584);
+    color: #fff;
+    flex: 1 1 250px;
+    padding: 24px;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card-resumo:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+}
+.card-resumo h4 {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 10px;
+    opacity: 0.9;
+}
+.card-resumo p {
+    font-size: 2em;
+    font-weight: bold;
+}
+
+/* 📈 Área dos gráficos */
+.canvas-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 30px;
+    margin-bottom: 40px;
+}
+.canvas-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    width: 320px;
+    height: 280px;
+}
+
+/* 📋 Tabela */
+.table-container {
+    overflow-x: auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+.frecu-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+}
+.frecu-table th {
+    background-color: #2c3e50;
+    color: #fff;
+    padding: 12px;
+    font-weight: 600;
+    font-size: 0.95em;
+}
+.frecu-table td {
+    padding: 10px;
+    text-align: center;
+    font-size: 0.9em;
+}
+.frecu-table tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+.frecu-table tr:hover {
+    background-color: #e8f0fe;
+}
+.frecu-table td span {
+    font-weight: 600;
+}
+.btn-action {
+    background-color: #2c3e50;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    transition: background 0.3s, transform 0.2s;
+}
+
+.btn-action:hover {
+    background-color: #1b2d42;
+    transform: translateY(-2px);
+}
+
+
+/*  Situações */
+span.aprovado { color: #27ae60; }
+span.recuperacao { color: #f39c12; }
+span.reprovado { color: #e74c3c; }
+</style>
+
+<div class="container-detalhes">
+  <h2><i class="bi bi-bar-chart"></i> {{ turma.nome }} - {{ disciplina.nome }}</h2>
+  <p style="text-align:center; color:#555; font-size:0.95rem;">
+    Cargo de quem visualiza: <strong>{{ cargo_usuario|capfirst }}</strong>
+    </p>
+  <!--  Cards resumo -->
+  <div class="cards-resumo">
+    <div class="card-resumo">
+      <h4>Média da Turma</h4>
+      <p>{{ media_turma|floatformat:1 }}</p>
+    </div>
+    <div class="card-resumo">
+      <h4>Frequência Média</h4>
+      <p>{{ frequencia_media|floatformat:1 }}%</p>
+    </div>
+  </div>
+
+  <!--  Gráficos -->
+  <div class="canvas-container">
+    <div class="canvas-card">
+      <canvas id="graficoMedia"></canvas>
+    </div>
+    <div class="canvas-card">
+      <canvas id="graficoFrequencia"></canvas>
+    </div>
+  </div>
+
+  <!--  Tabela -->
+  <h3 style="color:#2c3e50; margin-bottom:15px;"><i class="bi bi-clipboard-check icon"></i> Notas dos Alunos</h3>
+  <div class="table-container">
+    <table class="frecu-table">
+        <thead>
+            <tr>
+                <th>Aluno</th>
+                {% for bimestre in bimestres %}
+                    {% if bimestre != 'Recuperação' %}
+                        <th>{{ bimestre }}<br>(Nota / Simulado)</th>
+                    {% endif %}
+                {% endfor %}
+                <th>Média Final</th>
+                <th>Situação</th>
+                <th>Recuperação</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for aluno_id, dados in notas_por_aluno.items %}
+                <tr>
+                    <td>{{ dados.nome }}</td>
+                    {% for bimestre in bimestres %}
+                        {% with nota=dados|get_item:bimestre %}
+                            <td>
+                                {% if nota %}
+                                    {{ nota.notas|default:"-"|floatformat:1 }} / {{ nota.simulado|default:"-"|floatformat:1 }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                        {% endwith %}
+                    {% endfor %}
+                    <td>{{ dados.media_final|floatformat:1 }}</td>
+                    <td>
+                        {% if dados.status == 'Recuperação Necessária' %}
+                            <span class="recuperacao">{{ dados.status }}</span>
+                        {% elif dados.status == 'Reprovado' %}
+                            <span class="reprovado">{{ dados.status }}</span>
+                        {% else %}
+                            <span class="aprovado">{{ dados.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if dados.recuperacao %}
+                            {{ dados.recuperacao|floatformat:1 }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="{{ bimestres|length|add:'4' }}">Nenhuma nota encontrada.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+  </div>
+        <form action="{% url 'escolas:detalhes_da_turma' polo.id turma.id %}" method="get" style="display:inline;">
+            <button class="btn-action" type="submit"><i class="bi bi-arrow-left-square-fill"></i> Voltar</button>
+        </form>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const primary = "#2c3e50";
+  const accent = "#4b6584";
+  const success = "#27ae60";
+  const danger = "#c0392b";
+
+  // 📊 GRÁFICO DE MÉDIA
+  const ctxMedia = document.getElementById('graficoMedia').getContext('2d');
+  const gradMedia = ctxMedia.createLinearGradient(0, 0, 0, 400);
+  gradMedia.addColorStop(0, accent);
+  gradMedia.addColorStop(1, primary);
+
+  new Chart(ctxMedia, {
+    type: 'bar',
+    data: {
+      labels: ['Média da Turma'],
+      datasets: [{
+        label: 'Média',
+        data: [{{ media_turma|default:0|floatformat:1 }}],
+        backgroundColor: gradMedia,
+        borderRadius: 10
+      }]
+    },
+    options: {
+      plugins: {
+        legend: { display: false },
+        title: {
+          display: true,
+          text: 'Média Final da Turma',
+          color: primary,
+          font: { size: 16, weight: '600' }
+        },
+        tooltip: {
+          backgroundColor: primary,
+          titleColor: "#fff",
+          bodyColor: "#fff",
+          borderColor: "#ddd",
+          borderWidth: 1
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 10,
+          ticks: { color: primary },
+          grid: { color: "#e0e0e0", borderDash: [4, 4] }
+        },
+        x: {
+          ticks: { color: primary },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+
+  // 📈 GRÁFICO DE FREQUÊNCIA
+  const ctxFreq = document.getElementById('graficoFrequencia').getContext('2d');
+  let freq = parseFloat("{{ frequencia_media|default:0|floatformat:2 }}");
+  let faltas = parseFloat("{{ frequencia_faltas|default:0|floatformat:2 }}");
+  if (freq == 0) freq = 0.01; if (faltas == 0) faltas = 0.01;
+
+  const gradFreq = ctxFreq.createLinearGradient(0, 0, 300, 0);
+  gradFreq.addColorStop(0, primary);
+  gradFreq.addColorStop(1, accent);
+
+  new Chart(ctxFreq, {
+    type: 'doughnut',
+    data: {
+      labels: ['Presenças', 'Faltas'],
+      datasets: [{
+        data: [freq, faltas],
+        backgroundColor: [gradFreq, danger],
+        borderColor: "#fff",
+        borderWidth: 2,
+        hoverOffset: 6
+      }]
+    },
+    options: {
+      cutout: '60%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            color: primary,
+            font: { size: 13, weight: '500' }
+          }
+        },
+        title: {
+          display: true,
+          text: 'Frequência Média',
+          color: primary,
+          font: { size: 16, weight: '600' }
+        },
+        tooltip: {
+          backgroundColor: primary,
+          titleColor: '#fff',
+          bodyColor: '#fff',
+          callbacks: {
+            label: (ctx) => `${ctx.label}: ${ctx.raw.toFixed(1)}%`
+          }
+        }
+      }
+    }
+  });
+});
+</script>
+{% endblock %}

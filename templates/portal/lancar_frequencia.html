@@ -1,0 +1,198 @@
+{% extends 'base_polo.html' %}
+{% load static %}
+{% load custom_tags %}
+
+{% block title %}Lançar Frequência{% endblock %}
+
+{% block content %}
+
+<style>
+    :root {
+        --primary-color: #2c3e50;
+        --secondary-color: #34495e;
+        --bg-light: #f8f9fa;
+    }
+
+    .page-title {
+        color: var(--primary-color);
+        font-weight: 700;
+        font-size: 1.8rem;
+        border-bottom: 3px solid var(--primary-color);
+        display: inline-block;
+        margin-bottom: 25px;
+        padding-bottom: 5px;
+    }
+
+    .form-section {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    select, input[type="date"], input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        margin-bottom: 15px;
+    }
+
+    button {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: var(--secondary-color);
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+    }
+
+    table th {
+        background: var(--primary-color);
+        color: white;
+        padding: 10px;
+        text-align: center;
+    }
+
+    table td {
+        padding: 10px;
+        border: 1px solid #ddd;
+    }
+</style>
+
+{% if messages %}
+<div class="max-w-3xl mx-auto mt-4 space-y-3">
+  {% for message in messages %}
+  <div 
+    class="px-4 py-3 rounded-lg shadow-md text-white 
+      {% if message.tags == 'error' %} bg-red-600 
+      {% elif message.tags == 'success' %} bg-green-600 
+      {% elif message.tags == 'warning' %} bg-yellow-500 
+      {% else %} bg-blue-600 {% endif %}">
+
+    <p class="text-sm font-medium">{{ message }}</p>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="container">
+  <h2 class="page-title"><i class="bi bi-clipboard-check"></i> Lançar Frequência</h2>
+
+  <div class="form-section">
+    <form method="post">
+      {% csrf_token %}
+
+      <!-- TURMA -->
+      <label>Turma</label>
+
+      {% if aula %}
+          <input type="text" value="{{ aula.turma.nome }}" disabled>
+          <input type="hidden" name="turma" value="{{ aula.turma.id }}">
+      {% else %}
+          <select name="turma" onchange="this.form.submit()" required>
+            <option value="">Selecione...</option>
+            {% for t in turmas %}
+              <option value="{{ t.id }}" {% if turma_id == t.id|stringformat:"s" %}selected{% endif %}>
+                {{ t.nome }}
+              </option>
+            {% endfor %}
+          </select>
+      {% endif %}
+
+      <!-- DISCIPLINA -->
+      <label>Disciplina</label>
+      <select name="disciplina" required>
+          <option value="">Selecione...</option>
+          {% for d in disciplinas %}
+            <option value="{{ d.id }}" 
+              {% if disciplina_id == d.id|stringformat:"s" %}selected{% endif %}>
+              {{ d.nome }}
+            </option>
+          {% endfor %}
+      </select>
+
+      <!-- PROFESSOR -->
+      <label>Professor</label>
+      <select name="professor" required>
+          <option value="">Selecione...</option>
+          {% for p in professores %}
+            <option value="{{ p.id }}" 
+              {% if professor_id == p.id|stringformat:"s" %}selected{% endif %}>
+              {{ p.nome }}
+            </option>
+          {% endfor %}
+      </select>
+
+      <!-- DATA -->
+      <label>Data</label>
+      <input type="date" name="data" value="{% if data %}{{ data }}{% elif aula %}{{ aula.data }}{% endif %}" required>
+
+      <!-- HORARIO -->
+      <label>Horário</label>
+      <input type="text" name="horario" value="{% if horario %}{{ horario }}{% elif aula %}{{ aula.horario }}{% endif %}" placeholder="07:00" required>
+
+      <div style="display:flex; gap:10px; margin-top:10px;">
+        <button type="submit" name="buscar_alunos">
+          <i class="bi bi-search"></i> Buscar Alunos
+        </button>
+
+        {% if aula %}
+          <a href="{% url 'escolas:lancar_frequencia' polo.id %}" class="btn" 
+             style="background:#6c757d; padding:10px 14px; border-radius:8px; color:white;">
+            Nova Aula
+          </a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+
+  <!-- LISTA DE ALUNOS -->
+  {% if alunos %}
+    <div class="form-section" style="margin-top:16px">
+      <h3 class="table-title">
+        Turma: {{ aula.turma.nome }} — Disciplina: {{ aula.disciplina.nome }}
+      </h3>
+
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="aula_id" value="{{ aula.id }}">
+        <table>
+          <thead>
+            <tr><th>Aluno</th><th>Presente</th></tr>
+          </thead>
+          <tbody>
+            {% for aluno in alunos %}
+              <tr>
+                <td>{{ aluno.nome }}</td>
+                <td style="text-align:center">
+                  <input type="checkbox" name="presente_{{ aluno.id }}" 
+                    {% if frequencias|get_item:aluno.id %}checked{% endif %}>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <button type="submit" name="salvar_frequencia" style="margin-top:10px;">
+          <i class="bi bi-save"></i> Salvar Frequência
+        </button>
+      </form>
+    </div>
+  {% endif %}
+</div>
+
+{% endblock %}

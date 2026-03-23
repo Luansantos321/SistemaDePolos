@@ -1,0 +1,289 @@
+{% extends 'base_polo.html' %}
+{% load custom_tags %}
+{% load static %}
+{% block title %}Lançar Notas e Recuperação{% endblock %}
+{% block content %}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+/* ======= CONTAINER PRINCIPAL ======= */
+.form-cadastro {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 30px;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    font-family: "Segoe UI", sans-serif;
+}
+
+/* ======= TÍTULO ======= */
+.form-cadastro h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 1.9rem;
+    font-weight: 700;
+    color: #2d3e50;
+    position: relative;
+}
+.form-cadastro h2::after {
+    content: "";
+    display: block;
+    width: 70px;
+    height: 3px;
+    background: #2d3e50;
+    margin: 8px auto 0;
+    border-radius: 2px;
+}
+
+/* ======= LABELS E SELECTS ======= */
+.form-cadastro label {
+    font-weight: 600;
+    margin-right: 10px;
+    color: #2d3e50;
+}
+
+.form-cadastro select {
+    padding: 10px 14px;
+    margin: 5px 15px 20px 0;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    background: #f9f9f9;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+.form-cadastro select:hover {
+    background: #fff;
+    border-color: #2d3e50;
+}
+.form-cadastro select:focus {
+    outline: none;
+    border-color: #2d3e50;
+    box-shadow: 0 0 0 2px rgba(45, 62, 80, 0.2);
+}
+
+/* ======= BOTÕES ======= */
+.bt--notas,
+.bt-notas {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    color: #fff;
+    transition: all 0.25s ease;
+}
+
+.bt--notas {
+    background: #2d3e50;
+}
+.bt--notas:hover {
+    background: #3e526b;
+    transform: translateY(-2px);
+}
+
+.bt-notas {
+    background: #2d3e50;
+}
+.bt-notas:hover {
+    background: #3e526b;
+    transform: translateY(-2px);
+}
+
+/* ======= TABELA ======= */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 25px;
+    font-size: 0.96rem;
+}
+
+table th, table td {
+    padding: 12px 10px;
+    text-align: center;
+    border-bottom: 1px solid #e1e1e1;
+    vertical-align: middle;
+}
+
+table th {
+    background: #2d3e50;
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+table tr:hover {
+    background-color: #f8faff;
+}
+
+/* Inputs dentro da tabela */
+table input[type="number"] {
+    width: 90px;
+    padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+table input[type="number"]:focus {
+    border-color: #2d3e50;
+    outline: none;
+}
+p{
+    display: flex;
+    justify-content: center;
+    color: #555;
+    font-size: 15px;
+  }
+
+/* ======= STATUS / TEXTO ======= */
+em {
+    color: #27ae60;
+    font-weight: 600;
+}
+
+.alert {
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+.alert-success {
+    background: #e6f9ec;
+    color: #1f7a32;
+}
+.alert-error {
+    background: #fde8e8;
+    color: #b71c1c;
+}
+
+/* ======= RESPONSIVIDADE ======= */
+@media (max-width: 768px) {
+    .form-cadastro {
+        padding: 20px;
+    }
+    table {
+        font-size: 0.85rem;
+    }
+    .bt--notas, .bt-notas {
+        width: 100%;
+        justify-content: center;
+        margin-top: 10px;
+    }
+}
+</style>
+
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+        <i class="bi {% if message.tags == 'success' %}bi-check-circle{% elif message.tags == 'error' %}bi-x-circle{% else %}bi-info-circle{% endif %}"></i>
+        {{ message }}
+    </div>
+  {% endfor %}
+{% endif %}
+
+<form method="post" class="form-cadastro">
+  <h2><i class="bi bi-pencil-square"></i> Lançamento de Notas e Recuperação</h2>
+  {% csrf_token %}
+
+  <label><i class="bi bi-people-fill"></i> Turma:</label>
+  <select name="turma" required>
+      <option value="">Selecione...</option>
+      {% for t in turmas %}
+          <option value="{{ t.id }}" {% if turma_id == t.id|stringformat:'s' %}selected{% endif %}>{{ t.nome }}- {{t.ano_letivo}}</option>
+      {% endfor %}
+  </select>
+
+  <label><i class="bi bi-book"></i> Disciplina:</label>
+  <select name="disciplina" required>
+      <option value="">Selecione...</option>
+      {% for d in disciplinas %}
+          <option value="{{ d.id }}" {% if disciplina_id == d.id|stringformat:'s' %}selected{% endif %}>{{ d.nome }}</option>
+      {% endfor %}
+  </select>
+
+  <label><i class="bi bi-calendar-week"></i> Unidade:</label>
+  <select name="bimestre" required>
+      <option value="">Selecione...</option>
+      {% for b in bimestres %}
+          <option value="{{ b }}" {% if bimestre == b %}selected{% endif %}>{{ b }}</option>
+      {% endfor %}
+  </select>
+
+  <button type="submit" name="acao" value="filtrar" class="bt--notas">
+      <i class="bi bi-funnel"></i> Filtrar
+  </button>
+</form>
+
+{% if alunos %}
+<form method="post" class="form-cadastro">
+  {% csrf_token %}
+  <input type="hidden" name="turma" value="{{ turma_id }}">
+  <input type="hidden" name="disciplina" value="{{ disciplina_id }}">
+  <input type="hidden" name="bimestre" value="{{ bimestre }}">
+
+  <table>
+      <thead>
+          <tr>
+              <th>Aluno</th>
+              <th>Nota</th>
+              <th>Simulado</th>
+              {% if bimestre == '3º' %}
+                  <th>Recuperação</th>
+              {% endif %}
+              <th>Média</th>
+              <th>Status</th>
+          </tr>
+      </thead>
+      <tbody>
+      {% for aluno in alunos %}
+      {% with nota=notas_existentes|get_item:aluno.id %}
+      <tr>
+          <td><i class="bi bi-person"></i> {{ aluno.nome }}</td>
+          <td><input type="number" name="nota_{{ aluno.id }}" step="0.01" min="0" max="10" value="{{ nota.notas|default:0 }}"></td>
+          <td><input type="number" name="simulado_{{ aluno.id }}" step="0.01" min="0" max="10" value="{{ nota.simulado|default:0 }}"></td>
+          {% if bimestre == '3º' %}
+              <td>
+                  {% if nota.media_final < 6 %}
+                      <input type="number" name="recuperacao_{{ aluno.id }}" step="0.01" min="0" max="10" value="{{ nota.recuperacao|default_if_none:'' }}">
+                  {% else %}
+                      <em><i class="bi bi-check-circle"></i> Aprovado</em>
+                  {% endif %}
+              </td>
+          {% endif %}
+          <td>{{ nota.media_final|default:"-" }}</td>
+          <td>
+              {% if nota.status == 'Aprovado' %}
+                  <span style="color:#27ae60; font-weight:600;"><i class="bi bi-check2-circle"></i> {{ nota.status }}</span>
+              {% elif nota.status == 'Reprovado' %}
+                  <span style="color:#e74c3c; font-weight:600;"><i class="bi bi-x-circle"></i> {{ nota.status }}</span>
+              {% elif nota.status == 'Recuperação Necessária' %}
+                  <span style="color:#f39c12; font-weight:600;"><i class="bi bi-exclamation-triangle"></i> {{ nota.status }}</span>
+              {% else %}
+                  <span style="color:#555;">{{ nota.status|default:"Em andamento" }}</span>
+              {% endif %}
+          </td>
+      </tr>
+      {% endwith %}
+      
+      {% endfor %}
+      
+      </tbody>
+  </table>
+
+  <button type="submit" name="acao" value="salvar" class="bt-notas mt-3">
+      <i class="bi bi-bookmark-check"></i> Salvar Notas
+  </button>
+</form>
+{% endif %}
+<p><i class="bi bi-exclamation-circle"></i> Não ha alunos nessa turma!</p>
+{% endblock %}

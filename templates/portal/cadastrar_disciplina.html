@@ -1,0 +1,114 @@
+{% extends 'base_polo.html' %}
+{% load static %}
+{% block title %}Cadastro de Disciplina{% endblock %}
+{% block content %}
+<style>
+/* ======== CONTAINER PRINCIPAL ======== */
+.form-container {
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+/* ======== CARD DO FORM ======== */
+.form-card {
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* ======== TÍTULO ======== */
+.form-container h2 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+}
+
+/* ======== ERRO ======== */
+.error-message {
+    color: #e74c3c;
+    font-weight: 500;
+    text-align: center;
+}
+
+/* ======== GRUPOS DE INPUT ======== */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: #34495e;
+}
+
+.form-group input {
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-group input:focus {
+    border-color: #18bc9c;
+    box-shadow: 0 0 5px rgba(24,188,156,0.4);
+    outline: none;
+}
+
+/* ======== BOTÃO ======== */
+.btn-action {
+    background-color: #2c3e50;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+    transition: background 0.3s, transform 0.2s;
+}
+
+.btn-action:hover {
+    background-color: #1f2a38;
+    transform: translateY(-2px);
+}
+/* ======== RESPONSIVO ======== */
+@media (max-width: 600px) {
+    .form-container {
+        margin: 20px;
+        padding: 15px;
+    }
+    .form-card {
+        padding: 20px;
+    }
+}
+</style>
+<div class="form-container">
+    <h2>Cadastrar Disciplina - {{ polo.nome }}</h2>
+
+    {% if erro %}
+    <p class="error-message">{{ erro }}</p>
+    {% endif %}
+
+    <form method="POST" class="form-card">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="nome">Nome da disciplina:</label>
+            <input type="text" id="nome" name="nome" placeholder="Digite o nome da disciplina" required>
+        </div>
+
+        <button type="submit" class="btn-action"> <i class="bi bi-save"></i>  Salvar</button>
+    </form>
+</div>
+
+
+{% endblock %}

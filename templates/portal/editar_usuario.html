@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Editar Usuarios{% endblock %}
+{% block content %}
+
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+<style>
+/*** CARD PRINCIPAL ***/
+.edit-card {
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 14px;
+    max-width: 600px;
+    margin: 0 auto;
+    margin-top: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,.07);
+    border: 1px solid #e5e7eb;
+}
+
+/*** TÍTULO ***/
+.edit-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--primaria);
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+/*** LABELS E INPUTS ***/
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #cfd6dd;
+    font-size: 14px;
+}
+
+/*** BOTÃO PRINCIPAL ***/
+.btn-save {
+    width: 100%;
+    padding: 12px;
+    background: var(--primaria);
+    color: white;
+    border: none;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.btn-save:hover {
+    background: var(--primaria-hover);
+}
+
+/*** INFORMAÇÕES ADICIONAIS ***/
+.info-box {
+    background: #f8fafc;
+    border-left: 4px solid var(--primaria);
+    padding: 12px 15px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+}
+
+/*** BOTÃO VOLTAR ***/
+.btn-back {
+    display: inline-block;
+    margin-top: 15px;
+    text-decoration: none;
+    font-size: 14px;
+    color: var(--primaria);
+}
+
+.btn-back:hover {
+    text-decoration: underline;
+}
+</style>
+
+
+<div class="edit-card">
+
+    <h2 class="edit-title">
+        <i class="bi bi-pencil-square"></i> Editar Usuário
+    </h2>
+
+    <!-- Informações Laterais -->
+    <div class="info-box">
+        <strong>Usuário:</strong> {{ alvo.username }}<br>
+        <strong>Último acesso:</strong> 
+        {% if alvo.last_login %}
+            {{ alvo.last_login|date:"d/m/Y H:i" }}
+        {% else %}
+            Nunca acessou
+        {% endif %}
+    </div>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="username">Nome de Usuário *</label>
+            <input type="text" class="form-control" name="username" id="username"
+                   value="{{ alvo.username }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="email">E-mail </label>
+            <input type="email" class="form-control" name="email" id="email"
+                   value="{{ alvo.email }}">
+        </div>
+
+        <div class="form-group">
+            <label for="cargo">Cargo *</label>
+            <select class="form-control" name="cargo" id="cargo" required>
+                <option value="">Selecione...</option>
+
+                <option value="admin_global" 
+                    {% if perfil.cargo == "admin_global" %}selected{% endif %}>
+                    Administrador Global
+                </option>
+
+                <option value="diretoria" 
+                    {% if perfil.cargo == "diretoria" %}selected{% endif %}>
+                    Diretoria
+                </option>
+
+                <option value="coordenador" 
+                    {% if perfil.cargo == "coordenador" %}selected{% endif %}>
+                    Coordenação
+                </option>
+
+                <option value="secretaria" 
+                    {% if perfil.cargo == "secretaria" %}selected{% endif %}>
+                    Secretaria
+                </option>
+
+                <option value="professor" 
+                    {% if perfil.cargo == "professor" %}selected{% endif %}>
+                    Professor
+                </option>
+
+                <option value="aluno" 
+                    {% if perfil.cargo == "aluno" %}selected{% endif %}>
+                    Aluno
+                </option>
+            </select>
+        </div>
+
+        <!-- Campo Polo -->
+        <div class="form-group" id="polo_field">
+            <label for="polo">Polo</label>
+            <select class="form-control" name="polo" id="polo">
+                <option value="">-- Selecione um Polo --</option>
+                {% for p in polos %}
+                    <option value="{{ p.id }}"
+                        {% if perfil.polo and perfil.polo.id == p.id %}selected{% endif %}>
+                        {{ p.nome }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Submit -->
+        <button class="btn-save" type="submit">
+            <i class="bi bi-check2-circle"></i> Salvar Alterações
+        </button>
+
+        <a href="{% url 'portal:criar_usuario' %}" class="btn-back">
+            <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+    </form>
+</div>
+
+
+<script>
+// Esconde campo polo quando cargo é admin_global
+const cargoSelect = document.getElementById("cargo");
+const poloField = document.getElementById("polo_field");
+
+function togglePoloField() {
+    if (cargoSelect.value === "admin_global") {
+        poloField.style.display = "none";
+    } else {
+        poloField.style.display = "block";
+    }
+}
+
+togglePoloField();
+cargoSelect.addEventListener("change", togglePoloField);
+</script>
+
+{% endblock %}

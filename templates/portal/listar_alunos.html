@@ -1,0 +1,179 @@
+{% extends 'base_polo.html' %}
+{% load static %}
+{% block title %}Listar Alunos{% endblock %}
+{% block content %}
+<style>
+    /* Container */
+.alunos-container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 20px;
+    font-family: "Segoe UI", sans-serif;
+}
+
+.alunos-container h2 {
+    text-align: center;
+    font-size: 26px;
+    margin-bottom: 20px;
+    color: #2c3e50;
+}
+
+/* Tabela */
+.tabela-container {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    overflow-x: auto;
+}
+
+.tabela-alunos {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.tabela-alunos th {
+    background: #2c3e50;
+    color: #fff;
+    text-align: left;
+    padding: 14px 16px;
+    font-size: 15px;
+}
+
+.tabela-alunos td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #eaeaea;
+    font-size: 14px;
+}
+
+.tabela-alunos tbody tr:hover {
+    background: #f8f9fa;
+}
+
+/* Link nome do aluno */
+.a-card-aluno {
+    text-decoration: none;
+    color: #2c3e50;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.a-card-aluno:hover {
+    color: #083c91;
+    text-decoration: underline;
+}
+
+.a-card-aluno i {
+    margin-right: 6px;
+    font-size: 16px;
+    color: #2c3e50;
+}
+
+/* Badges */
+.badge {
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.badge.turma {
+    background: #e7f1ff;
+    color: #2c3e50;
+    border: 1px solid #2c3e50;
+}
+
+.badge.inativo {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* Nenhum resultado */
+.nenhum {
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Coluna da foto */
+.foto-coluna {
+    text-align: center;
+    width: 80px;
+}
+
+.foto-aluno {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover; /* Mantém proporção sem distorcer */
+    border: 2px solid #eaeaea;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.foto-aluno:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+
+</style>
+
+<div class="alunos-container">
+    <h2><i class="bi bi-person-lines-fill"></i> Lista de Alunos e suas Turmas do {{polo.nome}}</h2>
+
+    <div class="tabela-container">
+        <table class="tabela-alunos">
+            <thead>
+                <tr>
+                    <th>Foto</th>
+                    <th>Nome</th>
+                    <th>Data de Nascimento</th>
+                 
+                    <th>Turma</th>
+                    <th>Nome Responsável</th>
+                    <th>Matricula</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for aluno in alunos %}
+                <tr>
+                    <td class="foto-coluna">
+                        {% if aluno.foto_nova %}
+                            <img src="{{ aluno.foto_nova.url }}" alt="Foto do aluno {{ aluno.nome }}" class="foto-aluno">
+                        {% else %}
+                            <img src="{% static 'img/imagem-padrao-usuario.jpg' %}" alt="Foto padrão" class="foto-aluno">
+                        {% endif %}
+                                        </td>
+                    <td>
+                        {% if aluno.id %}
+                            <a href="{% url 'escolas:perfil_aluno' aluno.id polo.id%}" class="a-card-aluno">
+                                <i class="bi bi-person-badge"></i> {{ aluno.nome }}
+                            </a>
+                        {% else %}
+                            {{ aluno.nome }}
+                        {% endif %}
+                    </td>
+                    <td>{{ aluno.data_nascimento|date:"d/m/Y" }}</td>
+                    
+                    <td>
+                        {% if aluno.turma %}
+                            <a href="{% url 'escolas:detalhes_da_turma' aluno.polo.id aluno.turma.id %}"><span class="badge turma">{{ aluno.turma }}</span></a>
+                        {% else %}
+                            <span class="badge inativo">Aluno transferido/Concluinte</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ aluno.nome_mae }}</td>
+                    <td>{{ aluno.matricula }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="nenhum"><i class="bi bi-exclamation-circle"></i> Nenhum aluno cadastrado.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
