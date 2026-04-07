@@ -12,6 +12,7 @@ from django.contrib.auth import get_user_model
 from django.http import HttpResponse
 import datetime
 from datetime import date, timedelta, time
+from datetime import datetime
 from core.middleware import is_global
 from babel.dates import format_date, get_month_names
 import calendar
@@ -41,7 +42,7 @@ def is_global(user):
 
 @login_required
 def listar_turmas(request, polo_id=None):
-    ano_atual = datetime.datetime.now().year
+    ano_atual = datetime.now().year
     ano_letivo = request.GET.get('ano_letivo', ano_atual)
     perfil = request.user.perfilusuario
 
@@ -260,6 +261,52 @@ def excluir_professor(request, professor_id):
     professor.delete()
     messages.success(request, "Professor excluído com sucesso!")
     return redirect('escola:listar_professores')
+
+def perfil_professor(request, professor_id):
+    professor = get_object_or_404(Professor, id=professor_id)
+    polo_id = request.session.get('polo_id')
+
+    ano_atual = datetime.now().year
+
+    aulas = GradeHoraria.objects.filter(
+        professor=professor,
+        turma__ano_letivo=ano_atual  # FILTRO DO ANO
+    )
+
+    dias_semana = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta']
+
+    # Pegar horários únicos
+    horarios = sorted(set((a.horario_inicio, a.horario_fim) for a in aulas))
+
+    grade = []
+
+    for horario in horarios:
+        linha = {
+            'horario': horario,
+            'dias': []
+        }
+
+        for dia in dias_semana:
+            aula = aulas.filter(
+                dia_semana=dia,
+                horario_inicio=horario[0]
+            ).first()
+
+            linha['dias'].append(aula)
+
+        grade.append(linha)
+
+    polo = get_object_or_404(Polo, id=polo_id)
+
+    context = {
+        'professor': professor,
+        'dias_semana': dias_semana,
+        'grade': grade,
+        'polo': polo,
+        'ano_atual': ano_atual  # opcional (mostrar no template)
+    }
+
+    return render(request, 'portal/perfil_professor.html', context)
 
 # ========== ALUNOS ==========
 @login_required
@@ -2020,20 +2067,24 @@ class AprovarAlunoView(View):
             'turma_nova': turma_aprovados,
             'turma_repetida': turma_reprovados
         })
-    
-import random
+
+from .services.gerador_grade import gerar_grade_ortools
+
+
 @login_required
 def Gerar_grade_horaria(request, polo_id, turma_id):
     turma = get_object_or_404(Turma, id=turma_id, polo_id=polo_id)
     perfil = request.user.perfilusuario
     polo = get_object_or_404(Polo, id=polo_id)
 
+    #  Permissão
     if not is_global(request.user) and perfil.polo != polo:
         messages.error(request, "Você não tem permissão para acessar este polo.")
         return redirect('portal:home')
 
-    # Horários
+    #  Dias e horários fixos
     dias = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta"]
+
     horarios = [
         (time(7,30), time(8,20)),
         (time(8,20), time(9,10)),
@@ -2042,96 +2093,209 @@ def Gerar_grade_horaria(request, polo_id, turma_id):
         (time(11,10), time(12,0)),
     ]
 
-    # Cria lista de slots
-    slots = [(dia, inicio, fim) for dia in dias for inicio, fim in horarios]
-    random.shuffle(slots)  # embaralha → distribuição aleatória
-
-    # Busca prioridades
-    prioridades_ids = request.session.get("prioridades_grade", [])
-    prioridades = Disciplina.objects.filter(id__in=prioridades_ids)
-
-    # Mapeia Disciplina → Professor
+    #  Buscar disciplinas e professores da turma
     tpd = TurmaProfessorDisciplina.objects.filter(turma=turma)
+
+    if not tpd.exists():
+        messages.error(request, "Nenhuma disciplina/professor vinculada à turma.")
+        return redirect('portal:home')
+
     dados = {x.disciplina: x.professor for x in tpd}
 
-    # Limpa grade antiga
+    #  Prioridades (vindas da sessão)
+    prioridades_ids = request.session.get("prioridades_grade", [])
+    prioridades = list(Disciplina.objects.filter(id__in=prioridades_ids))
+
+    #  GERAR GRADE COM OR-TOOLS
+    grade = gerar_grade_ortools(turma, dados, dias, horarios, prioridades)
+
+    if not grade:
+        messages.error(request, "Não foi possível gerar a grade com as restrições atuais.")
+        return redirect('portal:home')
+
+    #  Limpar grade antiga
     GradeHoraria.objects.filter(turma=turma).delete()
 
-    # Controle de aulas por disciplina
-    contador = {disc: 0 for disc in dados.keys()}
+    #  Salvar nova grade
+    for aula in grade:
+        GradeHoraria.objects.create(
+            turma=turma,
+            disciplina=aula["disciplina"],
+            professor=aula["professor"],
+            dia_semana=aula["dia"],
+            horario_inicio=aula["inicio"],
+            horario_fim=aula["fim"]
+        )
 
-    # ALOCA PRIORIDADES (máx 4)
-    for disc in prioridades:
-        prof = dados.get(disc)
-        for dia, inicio, fim in slots:
-            if contador[disc] >= 4:
-                break
-
-            # Verifica professor livre
-            if GradeHoraria.objects.filter(
-                professor=prof,
-                dia_semana=dia,
-                horario_inicio=inicio
-            ).exists():
-                continue
-
-            # Verifica turma livre
-            if GradeHoraria.objects.filter(
-                turma=turma,
-                dia_semana=dia,
-                horario_inicio=inicio
-            ).exists():
-                continue
-
-            # Aloca aula
-            GradeHoraria.objects.create(
-                turma=turma,
-                disciplina=disc,
-                professor=prof,
-                dia_semana=dia,
-                horario_inicio=inicio,
-                horario_fim=fim
-            )
-            contador[disc] += 1
-
-    # ALOCA RESTANTE (máximo 4)
-    restantes = [d for d in dados.keys() if d not in prioridades]
-    restantes = random.sample(restantes, len(restantes))  # embaralhar ordem
-
-    for disc in restantes:
-        prof = dados.get(disc)
-        for dia, inicio, fim in slots:
-            if contador[disc] >= 4:
-                break
-
-            # Colisão professor
-            if GradeHoraria.objects.filter(
-                professor=prof,
-                dia_semana=dia,
-                horario_inicio=inicio
-            ).exists():
-                continue
-
-            # Colisão turma
-            if GradeHoraria.objects.filter(
-                turma=turma,
-                dia_semana=dia,
-                horario_inicio=inicio
-            ).exists():
-                continue
-
-            # Alocar
-            GradeHoraria.objects.create(
-                turma=turma,
-                disciplina=disc,
-                professor=prof,
-                dia_semana=dia,
-                horario_inicio=inicio,
-                horario_fim=fim
-            )
-            contador[disc] += 1
+    messages.success(request, "Grade horária gerada com sucesso!")
 
     return redirect("escolas:visualizar_grade_horaria", polo_id=polo.id, turma_id=turma.id)
+
+from .services.gerador_global import gerar_grade_global
+
+@login_required
+def gerar_todas_grades(request, polo_id):
+    polo = get_object_or_404(Polo, id=polo_id)
+    perfil = request.user.perfilusuario
+
+    if not is_global(request.user) and perfil.polo != polo:
+        messages.error(request, "Sem permissão.")
+        return redirect('portal:home')
+
+    dias = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta"]
+
+    horarios = [
+        (time(7,30), time(8,20)),
+        (time(8,20), time(9,10)),
+        (time(9,10), time(10,0)),
+        (time(10,20), time(11,10)),
+        (time(11,10), time(12,0)),
+    ]
+
+    turmas = list(Turma.objects.filter(polo=polo))
+
+    tpd = TurmaProfessorDisciplina.objects.filter(turma__in=turmas)
+
+    prioridades_ids = request.session.get("prioridades_grade", [])
+    prioridades = list(Disciplina.objects.filter(id__in=prioridades_ids))
+
+    #  GERAR GLOBAL
+    grade = gerar_grade_global(turmas, dias, horarios, tpd, prioridades)
+
+    if not grade:
+        messages.error(request, "Não foi possível gerar as grades.")
+        return redirect('portal:home_polo')
+
+    # Limpar todas
+    GradeHoraria.objects.filter(turma__in=turmas).delete()
+
+    # Salvar tudo
+    for aula in grade:
+        GradeHoraria.objects.create(
+            turma=aula["turma"],
+            disciplina=aula["disciplina"],
+            professor=aula["professor"],
+            dia_semana=aula["dia"],
+            horario_inicio=aula["inicio"],
+            horario_fim=aula["fim"]
+        )
+
+    messages.success(request, "Grades geradas para todas as turmas!")
+
+    return redirect('escolas:listar_turmas', polo_id=polo.id)
+
+import random
+
+# @login_required
+# def Gerar_grade_horaria(request, polo_id, turma_id):
+#     turma = get_object_or_404(Turma, id=turma_id, polo_id=polo_id)
+#     perfil = request.user.perfilusuario
+#     polo = get_object_or_404(Polo, id=polo_id)
+
+#     if not is_global(request.user) and perfil.polo != polo:
+#         messages.error(request, "Você não tem permissão para acessar este polo.")
+#         return redirect('portal:home')
+
+#     # Horários
+#     dias = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta"]
+#     horarios = [
+#         (time(7,30), time(8,20)),
+#         (time(8,20), time(9,10)),
+#         (time(9,10), time(10,0)),
+#         (time(10,20), time(11,10)),
+#         (time(11,10), time(12,0)),
+#     ]
+
+#     # Cria lista de slots
+#     slots = [(dia, inicio, fim) for dia in dias for inicio, fim in horarios]
+#     random.shuffle(slots)  # embaralha → distribuição aleatória
+
+#     # Busca prioridades
+#     prioridades_ids = request.session.get("prioridades_grade", [])
+#     prioridades = Disciplina.objects.filter(id__in=prioridades_ids)
+
+#     # Mapeia Disciplina → Professor
+#     tpd = TurmaProfessorDisciplina.objects.filter(turma=turma)
+#     dados = {x.disciplina: x.professor for x in tpd}
+
+#     # Limpa grade antiga
+#     GradeHoraria.objects.filter(turma=turma).delete()
+
+#     # Controle de aulas por disciplina
+#     contador = {disc: 0 for disc in dados.keys()}
+
+#     # ALOCA PRIORIDADES (máx 4)
+#     for disc in prioridades:
+#         prof = dados.get(disc)
+#         for dia, inicio, fim in slots:
+#             if contador[disc] >= 5:
+#                 break
+
+#             # Verifica professor livre
+#             if GradeHoraria.objects.filter(
+#                 professor=prof,
+#                 dia_semana=dia,
+#                 horario_inicio=inicio
+#             ).exists():
+#                 continue
+
+#             # Verifica turma livre
+#             if GradeHoraria.objects.filter(
+#                 turma=turma,
+#                 dia_semana=dia,
+#                 horario_inicio=inicio
+#             ).exists():
+#                 continue
+
+#             # Aloca aula
+#             GradeHoraria.objects.create(
+#                 turma=turma,
+#                 disciplina=disc,
+#                 professor=prof,
+#                 dia_semana=dia,
+#                 horario_inicio=inicio,
+#                 horario_fim=fim
+#             )
+#             contador[disc] += 1
+
+#     # ALOCA RESTANTE (máximo 4)
+#     restantes = [d for d in dados.keys() if d not in prioridades]
+#     restantes = random.sample(restantes, len(restantes))  # embaralhar ordem
+
+#     for disc in restantes:
+#         prof = dados.get(disc)
+#         for dia, inicio, fim in slots:
+#             if contador[disc] >= 4:
+#                 break
+
+#             # Colisão professor
+#             if GradeHoraria.objects.filter(
+#                 professor=prof,
+#                 dia_semana=dia,
+#                 horario_inicio=inicio
+#             ).exists():
+#                 continue
+
+#             # Colisão turma
+#             if GradeHoraria.objects.filter(
+#                 turma=turma,
+#                 dia_semana=dia,
+#                 horario_inicio=inicio
+#             ).exists():
+#                 continue
+
+#             # Alocar
+#             GradeHoraria.objects.create(
+#                 turma=turma,
+#                 disciplina=disc,
+#                 professor=prof,
+#                 dia_semana=dia,
+#                 horario_inicio=inicio,
+#                 horario_fim=fim
+#             )
+#             contador[disc] += 1
+
+#     return redirect("escolas:visualizar_grade_horaria", polo_id=polo.id, turma_id=turma.id)
 
 
 @login_required

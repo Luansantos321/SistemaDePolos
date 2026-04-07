@@ -1,0 +1,252 @@
+{% extends 'base_polo.html' %}
+
+{% block content %}
+
+<style>
+    .container-perfil {
+        max-width: 1100px;
+        margin: auto;
+    }
+
+    .card {
+        background: #fff;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .titulo {
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #2c3e50;
+    }
+
+    .subtitulo {
+        font-size: 18px;
+        font-weight: 500;
+        margin-bottom: 10px;
+        color: #34495e;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 10px;
+    }
+
+    .info-item {
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 6px;
+    }
+
+    .info-item strong {
+        display: block;
+        font-size: 13px;
+        color: #7f8c8d;
+    }
+
+    .info-item span {
+        font-size: 15px;
+        color: #2c3e50;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    thead {
+        background: #2c3e50;
+        color: #fff;
+    }
+
+    th, td {
+        padding: 10px;
+        text-align: center;
+    }
+
+    tbody tr:nth-child(even) {
+        background: #f2f2f2;
+    }
+
+    tbody tr:hover {
+        background: #eaf2f8;
+    }
+
+    .badge-dia {
+        padding: 5px 10px;
+        border-radius: 5px;
+        background: #3498db;
+        color: white;
+        font-size: 13px;
+    }
+
+    .sem-aula {
+        text-align: center;
+        padding: 20px;
+        color: #7f8c8d;
+    }
+</style>
+
+<div class="container-perfil">
+
+    <!-- PERFIL -->
+    <div class="card">
+        <div class="titulo">Perfil do Professor</div>
+
+        <div class="subtitulo">{{ professor.nome }}</div>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <strong>Email</strong>
+                <span>{{ professor.email|default:"Não informado" }}</span>
+            </div>
+
+            <div class="info-item">
+                <strong>CPF</strong>
+                <span>{{ professor.cpf }}</span>
+            </div>
+
+            <div class="info-item">
+                <strong>RG</strong>
+                <span>{{ professor.rg|default:"-" }}</span>
+            </div>
+
+            <div class="info-item">
+                <strong>Data de Nascimento</strong>
+                <span>{{ professor.data_nascimento|date:"d/m/Y" }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- FORMAÇÃO -->
+    <div class="card">
+        <div class="titulo">Formação Acadêmica</div>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <strong>Formação</strong>
+                <span>{{ professor.formacao_academica|default:"-" }}</span>
+            </div>
+
+            <div class="info-item">
+                <strong>Nível Superior</strong>
+                <span>{{ professor.nivel_superior|yesno:"Sim,Não" }}</span>
+            </div>
+
+            <div class="info-item">
+                <strong>Pós-graduação</strong>
+                <span>{{ professor.pos_graduacao|default:"-" }}</span>
+            </div>
+
+            <div class="info-item">
+                <strong>Curso</strong>
+                <span>{{ professor.curso_formacao|default:"-" }}</span>
+            </div>
+
+            <div class="info-item">
+                <strong>Instituição</strong>
+                <span>{{ professor.instituicao_formacao|default:"-" }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- GRADE -->
+<div class="card">
+    <div class="titulo">Grade Letiva</div>
+
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --primary-light: #34495e;
+            --bg-light: #f4f6f7;
+            --text-dark: #2c3e50;
+        }
+
+        .grade-container {
+            padding: 10px;
+        }
+
+        .table thead th {
+            background: var(--primary);
+            color: white;
+            font-size: 0.9rem;
+            padding: 10px;
+        }
+
+        .table tbody td {
+            background: white;
+            padding: 8px;
+            vertical-align: middle;
+        }
+
+        .horario-col {
+            font-weight: 700;
+            color: var(--primary);
+            background: #ecf0f1;
+        }
+
+        .aula-card {
+            background: var(--bg-light);
+            border-left: 4px solid var(--primary);
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            transition: .2s;
+        }
+
+        .aula-card:hover {
+            transform: scale(1.03);
+            background: #eaecee;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        .empty-slot {
+            color: #bdc3c7;
+            font-size: 0.8rem;
+        }
+    </style>
+
+    <div class="table-responsive grade-container">
+        <table class="table table-bordered text-center align-middle">
+            <thead>
+                <tr>
+                    <th>Horário</th>
+                    {% for dia in dias_semana %}
+                        <th>{{ dia }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for linha in grade %}
+                <tr>
+                    <td class="horario-col">
+                        {{ linha.horario.0|time:"H:i" }}<br>
+                        <small>até</small><br>
+                        {{ linha.horario.1|time:"H:i" }}
+                    </td>
+
+                    {% for aula in linha.dias %}
+                        <td>
+                            {% if aula %}
+                                <div class="aula-card">
+                                    <strong>{{ aula.disciplina.nome }}</strong><br>
+                                    <small>{{ aula.turma.nome }}</small>
+                                </div>
+                            {% else %}
+                                <span class="empty-slot">Livre</span>
+                            {% endif %}
+                        </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

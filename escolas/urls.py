@@ -18,6 +18,7 @@ urlpatterns = [
     path('turma/<int:polo_id>/<int:turma_id>/aulas', views.Aulas_da_turma, name='aulas_da_turma'),
     path('frequencia/<int:turma_id>/<int:polo_id>/turmas/', views.FrequenciaTurma, name='frequencia_por_turma'),
     path('turmas/<int:polo_id>/<int:turma_id>/gerar-grade/', views.Gerar_grade_horaria, name='gerar_grade_horaria'),
+    path('gerar-todas-grades/<int:polo_id>/',views.gerar_todas_grades,name='gerar_todas_grades'),
     path('turmas/<int:polo_id>/<int:turma_id>/gerar-grade-opcoes/', views.Opcoes_grade_horaria, name='opcoes_grade_horaria'),
     path('turmas/<int:polo_id>/<int:turma_id>/grade/', views.Visualizar_grade, name='visualizar_grade_horaria'),
     path("turmas/<int:polo_id>/<int:turma_id>/remover-disciplina/<int:tpd_id>/", views.remover_disciplina_turma, name="remover_disciplina_turma"),
@@ -26,6 +27,8 @@ urlpatterns = [
     path('professores/', views.listar_professores, name='listar_professores'),
     path('professores/criar/', views.criar_professor, name='criar_professor'),
     path('professores/excluir/<int:professor_id>/', views.excluir_professor, name='excluir_professor'),
+    path('professor/perfil/<int:professor_id>/', views.perfil_professor, name='perfil_professor'),
+
 
     # Alunos
     path('alunos/', views.listar_alunos, name='listar_alunos'),

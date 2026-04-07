@@ -78,7 +78,7 @@
 
     <div class="cards-professores">
         {% for professor in professores %}
-        <a href="" class="card-professor">
+        <a href="{% url 'escolas:perfil_professor' professor.id %}" class="card-professor">
             <div class="card-foto">
                 {% if professor.foto %}
                     <img src="{{ professor.foto.url }}" alt="Foto de {{ professor.nome }}">

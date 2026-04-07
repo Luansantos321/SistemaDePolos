@@ -63,6 +63,23 @@ h2 {
     transform: translateY(-2px);
 }
 
+.btn-gerar {
+    background: #2c3e50;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: 0.2s;
+}
+
+.btn-gerar:hover {
+    background: #1f2a38;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    color: white;
+}
+
 /* ====== FORM INLINE ====== */
 .form-inline {
     display: inline-block;
@@ -87,6 +104,15 @@ h2 {
 }
 </style>
 
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+        <i class="bi {% if message.tags == 'success' %}bi-check-circle{% elif message.tags == 'error' %}bi-x-circle{% else %}bi-info-circle{% endif %}"></i>
+        {{ message }}
+    </div>
+  {% endfor %}
+{% endif %}
+
 <h2>Turmas do Polo {{ polo.nome }}</h2>
 <form method="get">
   <label for="ano_letivo">Filtrar por Ano Letivo:</label>
@@ -95,6 +121,12 @@ h2 {
   <a href="{% url 'escolas:listar_turmas' polo.id%}">
     <button class="bt-notas" type="button"><i class="bi bi-x"></i> </button>
   </a>
+</form>
+<form method="post" action="{% url 'escolas:gerar_todas_grades' polo.id %}">
+    {% csrf_token %}
+    <button type="submit" class="btn-gerar" onclick="return confirm('Deseja gerar todas as grades? Isso irá apagar as atuais.')">
+         Gerar todas as grades
+    </button>
 </form>
 <hr>
 
