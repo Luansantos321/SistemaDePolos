@@ -1,6 +1,6 @@
-# 🎓 Sistema de Gestão de Polos Educacionais
+#  Sistema de Gestão de Polos Educacionais
 
-## 📌 Descrição
+##  Descrição
 
 Este projeto consiste em um sistema web desenvolvido com o objetivo de auxiliar na gestão de polos educacionais, permitindo o controle de turmas, professores, disciplinas e organização acadêmica.
 
@@ -8,7 +8,7 @@ Um dos principais diferenciais do sistema é a geração automática de grades h
 
 ---
 
-## 🚀 Funcionalidades
+##  Funcionalidades
 
 - Cadastro e gerenciamento de polos
 - Cadastro de turmas com ano letivo e turno
@@ -23,7 +23,7 @@ Um dos principais diferenciais do sistema é a geração automática de grades h
 
 ---
 
-## 🧠 Inteligência do Sistema
+##  Inteligência do Sistema
 
 O sistema utiliza um mecanismo de otimização baseado em restrições para gerar as grades horárias.
 
@@ -36,19 +36,19 @@ Essa abordagem permite:
 
 ---
 
-## 🛠️ Tecnologias Utilizadas
+##  Tecnologias Utilizadas
 
 - Python
 - Django
-- SQLite (padrão, podendo ser substituído por PostgreSQL)
+- PostgreSQL
 - HTML / CSS / Bootstrap
 - OR-Tools (Google) para otimização da grade horária
 
 ---
 
-## ⚙️ Como Executar o Projeto
+##  Como Executar o Projeto
 
 ### 1. Clonar o repositório
 
 ```bash
-git clone https://github.com/seu-usuario/seu-repositorio.git
+git clone https://github.com/Luansantos321/SistemaDePolos/.git
