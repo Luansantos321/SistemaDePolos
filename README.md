@@ -2,7 +2,7 @@
 
 ##  Descrição
 
-Este projeto consiste em um sistema web desenvolvido com o objetivo de auxiliar na gestão de polos educacionais, permitindo o controle de turmas, professores, disciplinas e organização acadêmica.
+Este projeto consiste em um sistema web que esta sendo desenvolvido com o objetivo de auxiliar na gestão de polos educacionais, permitindo o controle de turmas, professores, disciplinas e organização acadêmica.
 
 Um dos principais diferenciais do sistema é a geração automática de grades horárias utilizando técnicas de otimização, garantindo a distribuição eficiente das aulas e evitando conflitos entre professores e turmas.
 
