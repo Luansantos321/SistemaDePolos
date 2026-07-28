@@ -1,54 +1,173 @@
-#  Sistema de Gestão de Polos Educacionais
+# Sistema de Polos
 
-##  Descrição
+Sistema web desenvolvido com Python e Django para gerenciamento de múltiplos polos educacionais em uma única aplicação.
 
-Este projeto consiste em um sistema web que esta sendo desenvolvido com o objetivo de auxiliar na gestão de polos educacionais, permitindo o controle de turmas, professores, disciplinas e organização acadêmica.
+O sistema permite centralizar o gerenciamento de polos, usuários, turmas e demais informações administrativas, utilizando controle de permissões por perfil e uma arquitetura preparada para expansão.
 
-Um dos principais diferenciais do sistema é a geração automática de grades horárias utilizando técnicas de otimização, garantindo a distribuição eficiente das aulas e evitando conflitos entre professores e turmas.
+## Funcionalidades
 
----
+### Administração
 
-##  Funcionalidades
+- Cadastro de polos
+- Gerenciamento de usuários
+- Controle de perfis de acesso
+- Painel administrativo
 
-- Cadastro e gerenciamento de polos
-- Cadastro de turmas com ano letivo e turno
-- Cadastro de professores e disciplinas
-- Vinculação de professores às disciplinas por turma
-- Visualização de grade horária por turma
-- Visualização do perfil do professor com suas aulas
-- Geração automática de grade horária por turma
-- Geração automática de grades para todas as turmas
-- Evita conflitos de horários entre professores
-- Priorização de disciplinas na geração da grade
+### Gestão Acadêmica
 
----
+- Cadastro de turmas
+- Associação de usuários aos polos
+- Organização das informações por unidade
+- Controle de acesso aos dados
 
-##  Inteligência do Sistema
+### Controle de Usuários
 
-O sistema utiliza um mecanismo de otimização baseado em restrições para gerar as grades horárias.
+- Autenticação
+- Controle de permissões
+- Diferentes níveis de acesso
+- Administração centralizada
 
-Essa abordagem permite:
+## Tecnologias
 
-- Distribuição equilibrada das aulas
-- Respeito às regras definidas (como evitar conflitos de horário)
-- Melhor aproveitamento dos horários disponíveis
-- Geração automática de soluções viáveis mesmo com múltiplas restrições
-
----
-
-##  Tecnologias Utilizadas
+### Back-end
 
 - Python
 - Django
+
+### Banco de Dados
+
 - PostgreSQL
-- HTML / CSS / Bootstrap
-- OR-Tools (Google) para otimização da grade horária
+- SQLite (desenvolvimento)
 
----
+### Front-end
 
-##  Como Executar o Projeto
+- HTML
+- CSS
+- Bootstrap
+- JavaScript
 
-### 1. Clonar o repositório
+### Ferramentas
+
+- Git
+- GitHub
+
+## Estrutura do Projeto
+
+```text
+SistemaDePolos/
+
+├── core/
+├── portal/
+├── usuarios/
+├── escolas/
+├── templates/
+├── static/
+├── media/
+├── manage.py
+└── requirements.txt
+```
+
+## Executando o projeto
+
+Clone o repositório:
 
 ```bash
-git clone https://github.com/Luansantos321/SistemaDePolos/.git
+git clone https://github.com/Luansantos321/SistemaDePolos.git
+```
+
+Entre na pasta do projeto:
+
+```bash
+cd SistemaDePolos
+```
+
+Crie um ambiente virtual:
+
+```bash
+python -m venv venv
+```
+
+Ative o ambiente:
+
+**Windows**
+
+```bash
+venv\Scripts\activate
+```
+
+**Linux / macOS**
+
+```bash
+source venv/bin/activate
+```
+
+Instale as dependências:
+
+```bash
+pip install -r requirements.txt
+```
+
+Execute as migrações:
+
+```bash
+python manage.py migrate
+```
+
+Inicie o servidor:
+
+```bash
+python manage.py runserver
+```
+
+## Arquitetura
+
+O sistema foi desenvolvido seguindo a arquitetura MTV do Django, com separação entre regras de negócio, modelos de dados e interface.
+
+A aplicação foi projetada para suportar múltiplos polos em uma única instalação, permitindo que usuários possuam diferentes níveis de acesso e visualizem apenas as informações autorizadas.
+
+Essa abordagem facilita a escalabilidade do sistema e reduz a duplicação de dados entre unidades.
+
+## Conhecimentos aplicados
+
+Durante o desenvolvimento foram utilizados conceitos como:
+
+- Programação Orientada a Objetos
+- Desenvolvimento Web com Django
+- Modelagem de Banco de Dados Relacional
+- Arquitetura MTV
+- Controle de permissões
+- Sistema de autenticação
+- Relacionamentos entre modelos
+- Organização modular de aplicações Django
+- Versionamento com Git e GitHub
+
+## Próximas melhorias
+
+- API REST com Django REST Framework
+- Dashboard com indicadores por polo
+- Relatórios em PDF
+- Auditoria de ações dos usuários
+- Sistema de notificações
+- Melhorias na interface responsiva
+
+## Objetivos do Projeto
+
+O projeto foi desenvolvido com o objetivo de criar uma plataforma centralizada para administração de polos educacionais, permitindo uma gestão organizada, segura e escalável.
+
+Sua arquitetura possibilita o gerenciamento de diferentes unidades dentro de um único sistema, mantendo isolamento das informações e controle de acesso conforme o perfil de cada usuário.
+
+## Autor
+
+**Luan Santos da Silva**
+
+Graduado em Gestão da Tecnologia da Informação.
+
+Atualmente desenvolvendo aplicações web com Python e Django e estudando Java e Spring Boot.
+
+- GitHub: https://github.com/Luansantos321
+- LinkedIn: *(adicione seu perfil)*
+- E-mail: *(adicione seu e-mail)*
+
+## Licença
+
+Este projeto está licenciado sob a licença MIT. Consulte o arquivo `LICENSE` para mais informações.
