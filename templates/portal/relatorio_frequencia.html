@@ -1,0 +1,185 @@
+{% extends 'base_polo.html' %}
+
+{% block content %}
+
+<style>
+:root {
+    --primary: #2c3e50;
+    --primary-light: #34495e;
+    --success: #27ae60;
+    --danger: #e74c3c;
+    --bg-light: #f4f6f7;
+}
+
+/* Container */
+.relatorio-container {
+    background: white;
+    padding: 30px;
+    border-radius: 14px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+/* Cabeçalho */
+.relatorio-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+}
+
+.relatorio-header h2 {
+    color: var(--primary);
+    font-weight: 700;
+}
+
+.relatorio-header small {
+    color: #7f8c8d;
+}
+
+/* Cards resumo */
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.card-resumo {
+    background: var(--bg-light);
+    border-left: 5px solid var(--primary);
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.card-resumo h4 {
+    margin: 0;
+    font-size: 1.4rem;
+    color: var(--primary);
+}
+
+.card-resumo span {
+    font-size: 0.9rem;
+    color: #555;
+}
+
+/* Tabela */
+.table thead th {
+    background: var(--primary);
+    color: white;
+    font-size: 0.9rem;
+    padding: 12px;
+}
+
+.table tbody td {
+    padding: 10px;
+    vertical-align: middle;
+}
+
+/* Linha hover */
+.table tbody tr:hover {
+    background: #f2f4f5;
+}
+
+/* Badge */
+.badge-status {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.badge-ok {
+    background: #eafaf1;
+    color: var(--success);
+}
+
+.badge-alerta {
+    background: #fdecea;
+    color: var(--danger);
+}
+
+/* Nome do aluno */
+.aluno-nome {
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+/* Responsivo */
+.table-responsive {
+    border-radius: 10px;
+    overflow: hidden;
+}
+</style>
+
+<div class="container mt-5">
+    <div class="relatorio-container">
+
+        <!-- Cabeçalho -->
+        <div class="relatorio-header">
+            <div>
+                <h2><i class="bi bi-clipboard-data"></i> Relatório de Frequência</h2>
+                <small>Turma: {{ turma.nome }}</small>
+            </div>
+        </div>
+
+        <!-- Cards resumo -->
+        <div class="cards">
+            <div class="card-resumo">
+                <h4>{{ dados|length }}</h4>
+                <span>Total de Alunos</span>
+            </div>
+
+            <div class="card-resumo">
+                <h4>
+                    {{ dados|length }}
+                </h4>
+                <span>Registros analisados</span>
+            </div>
+        </div>
+
+        <!-- Tabela -->
+        <div class="table-responsive">
+            <table class="table table-bordered text-center align-middle">
+                <thead>
+                    <tr>
+                        <th>Aluno</th>
+                        <th>Presenças</th>
+                        <th>Faltas</th>
+                        <th>Frequência</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for item in dados %}
+                    <tr>
+                        <td class="aluno-nome">
+                            <i class="bi bi-person"></i> {{ item.aluno.nome }}
+                        </td>
+
+                        <td>{{ item.presencas }}</td>
+                        <td>{{ item.faltas }}</td>
+
+                        <td>
+                            {% if item.frequencia < 75 %}
+                                <span class="badge-status badge-alerta">
+                                    {{ item.frequencia }}%
+                                </span>
+                            {% else %}
+                                <span class="badge-status badge-ok">
+                                    {{ item.frequencia }}%
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

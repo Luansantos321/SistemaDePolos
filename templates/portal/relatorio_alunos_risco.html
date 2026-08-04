@@ -1,0 +1,240 @@
+{% extends 'base_polo.html' %}
+
+{% block content %}
+
+<style>
+:root {
+    --primary: #2c3e50;
+    --danger: #e74c3c;
+    --warning: #f39c12;
+    --success: #27ae60;
+    --bg-light: #f4f6f7;
+}
+
+/* Container */
+.relatorio-container {
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+}
+
+/* Header */
+.relatorio-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.relatorio-header h2 {
+    color: var(--primary);
+    font-weight: 700;
+}
+
+.relatorio-header .badge-turma {
+    background: var(--primary);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+}
+
+/* Cards */
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.card {
+    padding: 18px;
+    border-radius: 12px;
+    text-align: center;
+    background: var(--bg-light);
+    border-left: 5px solid var(--primary);
+}
+
+.card h4 {
+    margin: 0;
+    font-size: 1.6rem;
+}
+
+.card span {
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.card-danger {
+    border-left-color: var(--danger);
+    background: #fdecea;
+}
+
+.card-warning {
+    border-left-color: var(--warning);
+    background: #fef5e7;
+}
+
+/* Tabela */
+.table thead th {
+    background: var(--primary);
+    color: white;
+    padding: 12px;
+    font-size: 0.9rem;
+}
+
+.table tbody tr {
+    transition: 0.2s ease;
+}
+
+.table tbody tr:hover {
+    background: #fdf2f2;
+    transform: scale(1.01);
+}
+
+/* Nome */
+.aluno-nome {
+    font-weight: 600;
+    color: var(--primary);
+}
+
+/* Badges */
+.badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.badge-danger {
+    background: #fdecea;
+    color: var(--danger);
+}
+
+.badge-warning {
+    background: #fef5e7;
+    color: var(--warning);
+}
+
+/* Barra de progresso */
+.progress {
+    height: 8px;
+    border-radius: 10px;
+    background: #ecf0f1;
+}
+
+.progress-bar {
+    height: 100%;
+    border-radius: 10px;
+}
+
+.progress-danger {
+    background: var(--danger);
+}
+
+.progress-warning {
+    background: var(--warning);
+}
+
+/* Estado vazio */
+.empty-state {
+    text-align: center;
+    padding: 50px;
+    color: #7f8c8d;
+}
+
+.empty-state i {
+    font-size: 50px;
+    color: var(--success);
+    margin-bottom: 10px;
+}
+</style>
+
+<div class="container mt-5">
+    <div class="relatorio-container">
+
+        <!-- HEADER -->
+        <div class="relatorio-header">
+            <h2><i class="bi bi-exclamation-triangle"></i> Painel de Alunos em Risco</h2>
+            <span class="badge-turma">{{ turma.nome }}</span>
+        </div>
+
+        <!-- CARDS -->
+        <div class="cards">
+            <div class="card card-danger">
+                <h4>{{ dados|length }}</h4>
+                <span>Alunos em risco</span>
+            </div>
+
+            <div class="card card-warning">
+                <h4>
+                    {% with dados|length as total %}
+                        {{ total }}
+                    {% endwith %}
+                </h4>
+                <span>Monitoramento ativo</span>
+            </div>
+        </div>
+
+        <!-- TABELA -->
+        {% if dados %}
+        <div class="table-responsive">
+            <table class="table table-bordered text-center align-middle">
+                <thead>
+                    <tr>
+                        <th>Aluno</th>
+                        <th>Frequência</th>
+                        <th>Disciplinas em Risco</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for item in dados %}
+                    <tr>
+                        <td class="aluno-nome">
+                            <i class="bi bi-person-exclamation"></i>
+                            {{ item.aluno.nome }}
+                        </td>
+
+                        <td>
+                            <span class="badge badge-danger">
+                                {{ item.frequencia }}%
+                            </span>
+                        </td>
+
+                        <td style="text-align:left;">
+                            {% for disc in item.disciplinas %}
+                                <div style="margin-bottom:5px;">
+                                    <span class="badge badge-danger">
+                                        {{ disc.nome }} - {{ disc.media }}
+                                    </span>
+                                </div>
+                            {% endfor %}
+                        </td>
+
+                        <td>
+                            <span class="badge badge-danger">
+                                Em risco
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% else %}
+        <!-- VAZIO -->
+        <div class="empty-state">
+            <i class="bi bi-check-circle-fill"></i>
+            <h4>Nenhum aluno em risco</h4>
+            <p>A turma apresenta bom desempenho geral </p>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+{% endblock %}

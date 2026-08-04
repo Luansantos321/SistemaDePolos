@@ -19,29 +19,29 @@ def gerar_grade_ortools(turma, dados, dias, horarios, prioridades):
             for h in H:
                 x[(d, s, h)] = model.NewBoolVar(f"x_{d}_{s}_{h}")
 
-    # -----------------------------------
-    # 🎯 RESTRIÇÃO 1: 1 aula por slot
-    # -----------------------------------
+    
+    # RESTRIÇÃO 1: 1 aula por slot
+    
     for s in S:
         for h in H:
             model.Add(sum(x[(d, s, h)] for d in D) <= 1)
 
-    # -----------------------------------
-    # 🎯 RESTRIÇÃO 2: carga por disciplina (máx 4 ou 5)
-    # -----------------------------------
+    
+    #  RESTRIÇÃO 2: carga por disciplina (máx 4 ou 5)
+    
     for d in D:
         model.Add(sum(x[(d, s, h)] for s in S for h in H) <= 5)
 
-    # -----------------------------------
-    # 🎯 RESTRIÇÃO 3: não repetir disciplina no mesmo dia
-    # -----------------------------------
+   
+    #  RESTRIÇÃO 3: não repetir disciplina no mesmo dia
+    
     for d in D:
         for s in S:
             model.Add(sum(x[(d, s, h)] for h in H) <= 2)
 
-    # -----------------------------------
-    # 🎯 RESTRIÇÃO 4: professor não pode chocar horário
-    # -----------------------------------
+    
+    #  RESTRIÇÃO 4: professor não pode chocar horário
+   
     prof_map = defaultdict(list)
 
     for d_index, disc in enumerate(disciplinas):
@@ -53,9 +53,9 @@ def gerar_grade_ortools(turma, dados, dias, horarios, prioridades):
             for h in H:
                 model.Add(sum(x[(d, s, h)] for d in d_list) <= 1)
 
-    # -----------------------------------
-    # 🎯 FUNÇÃO OBJETIVO (prioridades)
-    # -----------------------------------
+    
+    #  FUNÇÃO OBJETIVO 
+  
     objective_terms = []
 
     for d_index, disc in enumerate(disciplinas):
@@ -68,9 +68,9 @@ def gerar_grade_ortools(turma, dados, dias, horarios, prioridades):
 
     model.Maximize(sum(objective_terms))
 
-    # -----------------------------------
+    
     # SOLVER
-    # -----------------------------------
+    
     solver = cp_model.CpSolver()
     solver.parameters.max_time_in_seconds = 10
 

@@ -54,5 +54,8 @@ urlpatterns = [
     path('calendario/gerar/', views.gerar_calendario, name='gerar_calendario'),
     path('calendario/editar/<int:id>/', views.editar_dia, name='editar_dia'),
 
+    #relatorios
+    path('relatorios/frequencia/turma/<int:polo_id>/<int:turma_id>/',views.relatorio_frequencia_turma,name='relatorio_frequencia_turma'),
+    path('relatorios/risco/<int:polo_id>/<int:turma_id>/',views.relatorio_alunos_risco,name='relatorio_alunos_risco'),
     
 ]

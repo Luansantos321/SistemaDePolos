@@ -1,120 +1,215 @@
 {% extends 'base_polo.html' %}
-{% block title %}Home{% endblock %}
 {% block content %}
+
+
 <style>
-  .dashboard-container {
-    padding: 20px;
-  }
-  .dashboard-title {
-    color: #2c3e50;
+.dashboard {
+    padding: 25px;
+}
+
+/* TÍTULO */
+.dashboard-title {
+    font-size: 26px;
     font-weight: 700;
-    font-size: 28px;
-    margin-bottom: 10px;
-  }
-  .dashboard-section-title {
     color: #2c3e50;
-    font-size: 20px;
-    margin-top: 30px;
-    font-weight: 600;
-  }
-  .card-box {
-    display: flex;
+    margin-bottom: 25px;
+}
+
+/* GRID */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 20px;
-    flex-wrap: wrap;
-  }
-  .info-card {
-    background: #ffffff;
-    border-radius: 12px;
+}
+
+/* CARDS */
+.dashboard-card {
+    background: #fff;
+    border-radius: 14px;
     padding: 20px;
-    min-width: 200px;
-    flex: 1;
-    box-shadow: 0px 4px 10px rgba(0,0,0,0.08);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.08);
     display: flex;
     align-items: center;
     gap: 15px;
-  }
-  .info-card i {
+    transition: 0.3s;
+    border-left: 5px solid #2c3e50;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+}
+
+/* ÍCONE */
+.card-icon {
     font-size: 30px;
-    color: #2c3e50;
-  }
-  .info-card span {
-    font-size: 18px;
-    font-weight: 600;
-    color: #2c3e50;
-  }
-  .info-card small {
-    display: block;
+    width: 55px;
+    height: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: #ecf0f1;
+}
+
+/* TEXTO */
+.card-info h3 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.card-info span {
     font-size: 14px;
-    color: gray;
-  }
-  ul.custom-list {
-    list-style: none;
-    padding: 0;
-  }
-  ul.custom-list li {
+    color: #7f8c8d;
+}
+
+/* CORES */
+.primary { border-left-color: #2c3e50; }
+.success { border-left-color: #27ae60; }
+.warning { border-left-color: #f39c12; }
+.danger  { border-left-color: #e74c3c; }
+
+.primary .card-icon { color: #2c3e50; }
+.success .card-icon { color: #27ae60; }
+.warning .card-icon { color: #f39c12; }
+.danger  .card-icon { color: #e74c3c; }
+
+/* LISTAS */
+.section {
+    margin-top: 30px;
+}
+
+.section h4 {
+    margin-bottom: 15px;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.list-item {
     background: #fff;
-    padding: 10px 15px;
-    margin-top: 6px;
-    border-radius: 8px;
-    box-shadow: 0px 1px 5px rgba(0,0,0,0.08);
-  }
+    padding: 12px 15px;
+    margin-bottom: 8px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.list-item i {
+    color: #7f8c8d;
+}
 </style>
 
-<div class="dashboard-container">
-  <h1 class="dashboard-title">Painel do Polo - {{ polo.nome }}</h1>
+<div class="dashboard">
 
-  <h2 class="dashboard-section-title">Resumo</h2>
-  <div class="card-box">
-    <div class="info-card">
-      <i class="bi bi-people-fill"></i>
-      <div>
-        <span>{{ alunos.count }}</span>
-        <small>Alunos cadastrados</small>
-      </div>
+    <!-- TÍTULO -->
+    <div class="dashboard-title">
+        <i class="bi bi-speedometer2"></i>
+        Painel do Polo — {{ polo.nome }}
     </div>
 
-    <div class="info-card">
-      <i class="bi bi-person-badge-fill"></i>
-      <div>
-        <span>{{ professores.count }}</span>
-        <small>Professores cadastrados</small>
-      </div>
+    <!-- CARDS -->
+    <div class="dashboard-grid">
+
+        <div class="dashboard-card primary">
+            <div class="card-icon">
+                <i class="bi bi-people-fill"></i>
+            </div>
+            <div class="card-info">
+                <h3>{{ alunos.count }}</h3>
+                <span>Total de alunos</span>
+            </div>
+        </div>
+
+        <div class="dashboard-card success">
+            <div class="card-icon">
+                <i class="bi bi-person-check-fill"></i>
+            </div>
+            <div class="card-info">
+                <h3>{{ alunos_ativos }}</h3>
+                <span>Alunos ativos</span>
+            </div>
+        </div>
+
+        <div class="dashboard-card primary">
+            <div class="card-icon">
+                <i class="bi bi-person-badge-fill"></i>
+            </div>
+            <div class="card-info">
+                <h3>{{ professores.count }}</h3>
+                <span>Professores</span>
+            </div>
+        </div>
+
+        <div class="dashboard-card primary">
+            <div class="card-icon">
+                <i class="bi bi-building"></i>
+            </div>
+            <div class="card-info">
+                <h3>{{ turmas.count }}</h3>
+                <span>Turmas (ano atual)</span>
+            </div>
+        </div>
+
+        <div class="dashboard-card warning">
+            <div class="card-icon">
+                <i class="bi bi-graph-up-arrow"></i>
+            </div>
+            <div class="card-info">
+                <h3>{{ media_geral }}</h3>
+                <span>Média geral</span>
+            </div>
+        </div>
+
+        <div class="dashboard-card success">
+            <div class="card-icon">
+                <i class="bi bi-check-circle-fill"></i>
+            </div>
+            <div class="card-info">
+                <h3>{{ frequencia_geral }}%</h3>
+                <span>Frequência geral</span>
+            </div>
+        </div>
+
+        <div class="dashboard-card danger">
+            <div class="card-icon">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+            </div>
+            <div class="card-info">
+                <h3>{{ risco }}</h3>
+                <span>Alunos em risco</span>
+            </div>
+        </div>
+
     </div>
 
-    <div class="info-card">
-      <i class="bi bi-building"></i>
-      <div>
-        <span>{{ turmas.count }}</span>
-        <small>Turmas ativas</small>
-      </div>
+    <!-- TURMAS -->
+    <div class="section">
+        <h4><i class="bi bi-journal-text"></i> Turmas recentes</h4>
+        {% for turma in turmas|slice:":5" %}
+            <div class="list-item">
+                <span><strong>{{ turma.nome }}</strong> — {{ turma.turno }}</span>
+                <i class="bi bi-chevron-right"></i>
+            </div>
+        {% empty %}
+            <div class="list-item">Nenhuma turma cadastrada</div>
+        {% endfor %}
     </div>
-  </div>
 
-  <h2 class="dashboard-section-title"><i class="bi bi-list-task"></i> Turmas</h2>
-  <ul class="custom-list">
-    {% for turma in turmas %}
-      <li><strong>{{ turma.nome }}</strong> — {{ turma.ano }}</li>
-    {% empty %}
-      <li>Nenhuma turma cadastrada.</li>
-    {% endfor %}
-  </ul>
+    <!-- PROFESSORES -->
+    <div class="section">
+        <h4><i class="bi bi-person-lines-fill"></i> Professores</h4>
+        {% for prof in professores|slice:":5" %}
+            <div class="list-item">
+                <span>{{ prof.nome }}</span>
+                <i class="bi bi-chevron-right"></i>
+            </div>
+        {% empty %}
+            <div class="list-item">Nenhum professor</div>
+        {% endfor %}
+    </div>
 
-  <h2 class="dashboard-section-title"><i class="bi bi-person-lines-fill"></i> Professores</h2>
-  <ul class="custom-list">
-    {% for prof in professores %}
-      <li><strong>{{ prof.nome }}</strong> — {{ prof.email|default:"Sem email" }}</li>
-    {% empty %}
-      <li>Nenhum professor cadastrado.</li>
-    {% endfor %}
-  </ul>
-
-  <h2 class="dashboard-section-title"><i class="bi bi-person-fill"></i> Alunos</h2>
-  <ul class="custom-list">
-    {% for aluno in alunos %}
-      <li><strong>{{ aluno.nome }}</strong> — Matrícula: {{ aluno.matricula }}</li>
-    {% empty %}
-      <li>Nenhum aluno cadastrado.</li>
-    {% endfor %}
-  </ul>
 </div>
+
 {% endblock %}

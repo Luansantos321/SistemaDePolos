@@ -5,6 +5,9 @@ from usuarios.models import PerfilUsuario
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth import get_user_model
+from django.db.models import Avg, Count, Q
+from escolas.models import Nota, Frequencia
+import datetime
 
 def is_admin_global(user):
     try:
@@ -110,16 +113,69 @@ def home_polo(request, polo_id=None):
         polo = get_object_or_404(Polo, id=polo_id)
     else:
         polo = perfil.polo
-
+        
     turmas = polo.turmas.all()
+    turmas = polo.turmas.filter(ano_letivo=datetime.date.today().year)
     professores = polo.professores.all()
     alunos = polo.alunos.all()
+    risco = []
+
+    # 📊 Alunos ativos
+    alunos_ativos = alunos.filter(status_matricula='ativo').count()
+
+    # 📉 Média geral
+    media_geral = Nota.objects.filter(polo=polo).aggregate(media=Avg('media_final'))['media'] or 0
+
+    # 📊 Frequência geral
+    total_presencas = Frequencia.objects.filter(aluno__polo=polo, presente=True).count()
+    total_faltas = Frequencia.objects.filter(aluno__polo=polo, presente=False).count()
+    total_aulas = total_presencas + total_faltas
+
+    frequencia_geral = (total_presencas / total_aulas * 100) if total_aulas > 0 else 0
+    for aluno in alunos:
+        # 🚨 Alunos em risco
+        total_presencas = Frequencia.objects.filter(aluno__polo=polo, presente=True).count()
+        total_faltas = Frequencia.objects.filter(aluno__polo=polo, presente=False).count()
+        total_aulas = total_presencas + total_faltas
+
+
+        frequencia_geral = (total_presencas / total_aulas * 100) if total_aulas > 0 else 0
+
+            #AGRUPAR NOTAS POR DISCIPLINA
+        disciplinas_notas = {}
+
+
+
+            #verificar risco por disciplina
+        disciplinas_risco = []
+
+        for disciplina, medias in disciplinas_notas.items():
+            if medias:
+                media_disciplina = sum(medias) / len(medias)
+
+                if media_disciplina < 6 and frequencia_geral < 75:
+                        disciplinas_risco.append({
+                            "nome": disciplina.nome,
+                            "media": round(media_disciplina, 2)
+                        })
+
+            #só adiciona se tiver risco em alguma disciplina
+        if disciplinas_risco:
+            risco.append({
+                "aluno": aluno,
+                "frequencia": round(frequencia_geral, 2),
+                "disciplinas": disciplinas_risco
+            }).count()
 
     return render(request, 'portal/home_polo.html', {
         'polo': polo,
         'turmas': turmas,
         'professores': professores,
-        'alunos': alunos
+        'alunos': alunos,
+        'alunos_ativos': alunos_ativos,
+        'media_geral': round(media_geral, 2),
+        'frequencia_geral': round(frequencia_geral, 2),
+        'risco': risco,
     })
 
 @login_required

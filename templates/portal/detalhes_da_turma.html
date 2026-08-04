@@ -284,8 +284,8 @@ a.a-card-aluno {
             <!-- BOTÃO REMOVER DENTRO DO CARD -->
             <div style="margin-top: 12px; text-align: right;" >
                 <a href="{% url 'escolas:remover_disciplina_turma' polo.id turma.id item.tpd_id %}"
-                   class="btn btn-danger btn-sm" style="color: #ffffff;">
-                    <i class="bi bi-trash"></i> 
+                   class="btn btn-danger btn-sm" style="color: #ffffff;"
+                    onclick="return confirm('Tem certeza que deseja excluir a disciplina?')"> <i class="bi bi-trash"></i> 
                 </a>
             </div>
 

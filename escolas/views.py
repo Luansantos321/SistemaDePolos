@@ -261,7 +261,7 @@ def excluir_professor(request, professor_id):
     professor.delete()
     messages.success(request, "Professor excluído com sucesso!")
     return redirect('escola:listar_professores')
-
+@login_required
 def perfil_professor(request, professor_id):
     professor = get_object_or_404(Professor, id=professor_id)
     polo_id = request.session.get('polo_id')
@@ -2454,3 +2454,87 @@ def Aulas_da_turma(request, turma_id, polo_id):
         'busca':busca,
         'polo': polo,
         } )
+
+
+# RELATORIOS
+@login_required
+def relatorio_frequencia_turma(request, turma_id, polo_id):
+    turma = get_object_or_404(Turma, id=turma_id, polo_id=polo_id)
+    alunos = turma.alunos_turma.all()
+    polo = get_object_or_404(Polo, id=polo_id)
+
+    dados = []
+
+    for aluno in alunos:
+        presencas = Frequencia.objects.filter(aluno=aluno, presente=True).count()
+        faltas = Frequencia.objects.filter(aluno=aluno, presente=False).count()
+        total = presencas + faltas
+
+        porcentagem = (presencas / total * 100) if total > 0 else 0
+
+        dados.append({
+            "aluno": aluno,
+            "presencas": presencas,
+            "faltas": faltas,
+            "frequencia": round(porcentagem, 2)
+        })
+
+    return render(request, "portal/relatorio_frequencia.html", {
+        "turma": turma,
+        "dados": dados,
+        'polo': polo
+    })
+
+@login_required
+def relatorio_alunos_risco(request, turma_id, polo_id):
+    turma = get_object_or_404(Turma, id=turma_id, polo_id=polo_id)
+    alunos = turma.alunos_turma.all()
+    polo = get_object_or_404(Polo, id=polo_id)
+
+    risco = []
+
+    for aluno in alunos:
+
+        #frequência geral do aluno
+        presencas = Frequencia.objects.filter(aluno=aluno, presente=True).count()
+        faltas = Frequencia.objects.filter(aluno=aluno, presente=False).count()
+        total = presencas + faltas
+
+        frequencia = (presencas / total * 100) if total > 0 else 0
+
+        #AGRUPAR NOTAS POR DISCIPLINA
+        disciplinas_notas = {}
+
+        for nota in aluno.notas.filter(turma=turma):
+            if nota.disciplina not in disciplinas_notas:
+                disciplinas_notas[nota.disciplina] = []
+
+            if nota.media_final:
+                disciplinas_notas[nota.disciplina].append(nota.media_final)
+
+        #verificar risco por disciplina
+        disciplinas_risco = []
+
+        for disciplina, medias in disciplinas_notas.items():
+            if medias:
+                media_disciplina = sum(medias) / len(medias)
+
+                if media_disciplina < 6 and frequencia < 75:
+                    disciplinas_risco.append({
+                        "nome": disciplina.nome,
+                        "media": round(media_disciplina, 2)
+                    })
+
+        #só adiciona se tiver risco em alguma disciplina
+        if disciplinas_risco:
+            risco.append({
+                "aluno": aluno,
+                "frequencia": round(frequencia, 2),
+                "disciplinas": disciplinas_risco
+            })
+
+    return render(request, "portal/relatorio_alunos_risco.html", {
+        "turma": turma,
+        "dados": risco,
+        "polo": polo
+    })
