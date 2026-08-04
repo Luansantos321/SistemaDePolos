@@ -165,9 +165,9 @@ Graduado em Gestão da Tecnologia da Informação.
 Atualmente desenvolvendo aplicações web com Python e Django e estudando Java e Spring Boot.
 
 - GitHub: https://github.com/Luansantos321
-- LinkedIn: *(adicione seu perfil)*
-- E-mail: *(adicione seu e-mail)*
-
+- Portfólio: https://luansantos-portfolio.vercel.app/
+- LinkedIn: www.linkedin.com/in/luan-santos-da-silva-1414ab369
+- E-mail: luansantosdasilva77@gmail.com
 ## Licença
 
 Este projeto está licenciado sob a licença MIT. Consulte o arquivo `LICENSE` para mais informações.
